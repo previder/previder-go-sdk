@@ -5,7 +5,9 @@ import (
 	"time"
 )
 
-const taskBasePath = "configurationitem/task/"
+const (
+	DefaultTimeout = 5 * time.Minute
+)
 
 type TaskService interface {
 	List() (*[]Task, error)
@@ -19,29 +21,28 @@ type TaskServiceOp struct {
 }
 
 type Task struct {
-	Id                string
-	TaskDate          *uint64
-	StartedDate       *uint64
-	CompletedDate     *uint64
-	Success           bool
-	Error             string
-	ConfigurationItem ConfigurationItem
-}
-
-type ConfigurationItem struct {
-	Id   string
-	Name string
+	Id            string
+	Completed     bool
+	CompletedDate *int
+	StartedDate   *int
+	User          string
+	Success       bool
+	Error         bool
+	ErrorMessage  string
+	Progress      int
+	TaskDate      *int
+	TaskType      string
 }
 
 func (c *TaskServiceOp) List() (*[]Task, error) {
 	task := new([]Task)
-	err := c.client.Get(taskBasePath, task)
+	err := c.client.Get(iaasBasePath+"task/", task)
 	return task, err
 }
 
 func (c *TaskServiceOp) Get(id string) (*Task, error) {
 	task := new(Task)
-	err := c.client.Get(taskBasePath+id, task)
+	err := c.client.Get(iaasBasePath+"task/"+id, task)
 	return task, err
 }
 
@@ -61,11 +62,11 @@ func (c *TaskServiceOp) WaitFor(id string, timeoutDuration time.Duration) (*Task
 			if err != nil {
 				return nil, err
 			}
-			if task.CompletedDate != nil {
+			if task.Completed {
 				if task.Success {
 					return task, nil
 				} else {
-					return task, errors.New(task.Error)
+					return task, errors.New(task.ErrorMessage)
 				}
 			}
 		}

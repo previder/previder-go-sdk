@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 )
 
 const (
 	defaultBaseURL = "https://portal.previder.nl/api/"
+	iaasBasePath   = "v2/iaas/"
 	jsonEncoding   = "application/json; charset=utf-8"
 )
 
@@ -19,8 +21,6 @@ type BaseClient struct {
 	Task           TaskService
 	VirtualMachine VirtualMachineService
 	VirtualNetwork VirtualNetworkService
-	SSHKey         SSHKeyService
-	DNSRecord      DNSRecordService
 }
 
 type ApiInfo struct {
@@ -51,9 +51,9 @@ func (e *ApiError) Error() string {
 }
 
 //noinspection GoUnusedExportedFunction
-func New(options *ClientOptions) *BaseClient {
+func New(options *ClientOptions) (*BaseClient, error) {
 	if options.Token == "" {
-		panic("Missing token")
+		return nil, fmt.Errorf("missing token")
 	}
 	if options.BaseUrl == "" {
 		options.BaseUrl = defaultBaseURL
@@ -62,10 +62,8 @@ func New(options *ClientOptions) *BaseClient {
 	c := &BaseClient{httpClient: http.DefaultClient, clientOptions: options}
 	c.Task = &TaskServiceOp{client: c}
 	c.VirtualMachine = &VirtualMachineServiceOp{client: c}
-	c.SSHKey = &SSHKeyServiceOp{client: c}
 	c.VirtualNetwork = &VirtualNetworkServiceOp{client: c}
-	c.DNSRecord = &DNSRecordServiceOp{client: c}
-	return c
+	return c, nil
 }
 
 func (c *BaseClient) Get(url string, responseBody interface{}) error {
@@ -88,7 +86,10 @@ func (c *BaseClient) request(method string, url string, requestBody, responseBod
 
 	// content will be empty with GET, so can be sent anyway
 	b := new(bytes.Buffer)
-	json.NewEncoder(b).Encode(requestBody)
+	err := json.NewEncoder(b).Encode(requestBody)
+	if err != nil {
+		return err
+	}
 	req, err := http.NewRequest(method, c.clientOptions.BaseUrl+url, b)
 	if err != nil {
 		return err
@@ -108,8 +109,9 @@ func (c *BaseClient) request(method string, url string, requestBody, responseBod
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		apiError := new(ApiError)
-		err := json.NewDecoder(res.Body).Decode(&apiError)
+		_, err := ioutil.ReadAll(res.Body)
 		if err != nil {
+
 			return err
 		}
 		apiError.Code = res.StatusCode
