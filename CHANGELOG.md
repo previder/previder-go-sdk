@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 - When an error message occurs, the message itself is returned instead of only the error code
 - The baseclient will log errors for better debugging purposes
 
+### Changed
+- Token header updated from Authentication with a bearer to the X-Auth-Token header
+
 ## 2019-06-26
 ### Changed
 - Updated the paths and models for the V2 endpoint
