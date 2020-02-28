@@ -139,13 +139,13 @@ func create(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	for id, disk := range disks {
+	for _, disk := range disks {
 		size, err := FromHumanReadable(disk)
 		if err != nil {
 			return nil
 		}
 		vm.Disks = append(vm.Disks, client.Disk{
-			Id:   &id,
+		//	Id:   &id,
 			Size: size / 1048576,
 		})
 	}

@@ -69,14 +69,14 @@ type VirtualMachineExt struct {
 }
 
 type Disk struct {
-	Id   *int   `json:"id,omitempty"`
+	Id   *string   `json:"id,omitempty"`
 	Size uint64 `json:"size"`
 	Uuid string `json:"uuid,omitempty"`
 	Label string `json:"label,omitempty"`
 }
 
 type NetworkInterface struct {
-	Id                  *int     `json:"id,omitempty"`
+	Id                  *string     `json:"id,omitempty"`
 	Network             string   `json:"network"`
 	Connected           bool     `json:"connected"`
 	MacAddress          string   `json:"macAddress,omitempty"`
