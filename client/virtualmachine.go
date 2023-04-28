@@ -69,30 +69,30 @@ type VirtualMachineExt struct {
 }
 
 type Disk struct {
-	Id   *string   `json:"id,omitempty"`
-	Size uint64 `json:"size"`
-	Uuid string `json:"uuid,omitempty"`
-	Label string `json:"label,omitempty"`
+	Id    *string `json:"id,omitempty"`
+	Size  uint64  `json:"size"`
+	Uuid  string  `json:"uuid,omitempty"`
+	Label string  `json:"label,omitempty"`
 }
 
 type NetworkInterface struct {
-	Id                  *string     `json:"id,omitempty"`
+	Id                  *string  `json:"id,omitempty"`
 	Network             string   `json:"network"`
 	Connected           bool     `json:"connected"`
 	MacAddress          string   `json:"macAddress,omitempty"`
 	DiscoveredAddresses []string `json:"discoveredAddresses,omitempty"`
 	AssignedAddresses   []string `json:"assignedAddresses,omitempty"`
-	Primary				bool	 `json:"primary,omitempty"`
-	Label				string	 `json:"label,omitempty"`
+	Primary             bool     `json:"primary,omitempty"`
+	Label               string   `json:"label,omitempty"`
 }
 
 type VirtualMachineCreate struct {
 	VirtualMachineExt
-	Template                     string             `json:"template,omitempty"`
-	SourceVirtualMachine         string             `json:"sourceVirtualMachine,omitempty"`
-	UserData                     string             `json:"userData,omitempty"`
-	GuestId                      string             `json:"guestId,omitempty"`
-	ProvisioningType             string             `json:"provisioningType,omitempty"`
+	Template             string `json:"template,omitempty"`
+	SourceVirtualMachine string `json:"sourceVirtualMachine,omitempty"`
+	UserData             string `json:"userData,omitempty"`
+	GuestId              string `json:"guestId,omitempty"`
+	ProvisioningType     string `json:"provisioningType,omitempty"`
 }
 
 type VirtualMachineTemplate struct {
@@ -114,7 +114,7 @@ type OpenConsoleResult struct {
 
 func (c *VirtualMachineServiceOp) ComputeClusterList() (*[]ComputeCluster, error) {
 	computeClusters := new([]ComputeCluster)
-	err := c.client.Get(iaasBasePath+"computecluster/", computeClusters)
+	err := c.client.Get(iaasBasePath+"computecluster", computeClusters)
 	return computeClusters, err
 }
 
@@ -126,7 +126,7 @@ func (c *VirtualMachineServiceOp) VirtualMachineTemplateList() (*[]VirtualMachin
 
 func (c *VirtualMachineServiceOp) Page() (*Page, *[]VirtualMachine, error) {
 	page := new(Page)
-	err := c.client.Get(iaasBasePath+"virtualmachine/", page)
+	err := c.client.Get(iaasBasePath+"virtualmachine", page)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -147,7 +147,7 @@ func (c *VirtualMachineServiceOp) Get(id string) (*VirtualMachineExt, error) {
 
 func (c *VirtualMachineServiceOp) Create(vm *VirtualMachineCreate) (*VirtualMachineTask, error) {
 	task := new(VirtualMachineTask)
-	err := c.client.Post(iaasBasePath+"virtualmachine/", vm, task)
+	err := c.client.Post(iaasBasePath+"virtualmachine", vm, task)
 	return task, err
 }
 
@@ -165,7 +165,7 @@ func (c *VirtualMachineServiceOp) Delete(id string) (*VirtualMachineTask, error)
 
 func (c *VirtualMachineServiceOp) Control(id string, action string) (*VirtualMachineTask, error) {
 	task := new(VirtualMachineTask)
-	err := c.client.Post(iaasBasePath+"virtualmachine/"+id+"/control/"+action, nil, task)
+	err := c.client.Post(iaasBasePath+"virtualmachine/"+id+"/action/"+action, nil, task)
 	return task, err
 }
 

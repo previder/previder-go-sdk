@@ -24,7 +24,7 @@ type VirtualNetwork struct {
 	Id      string `json:"id"`
 	Name    string `json:"name"`
 	Group   string `json:"group,omitempty"`
-	Type	string `json:"type"`
+	Type    string `json:"type"`
 	Managed bool   `json:"managed"`
 }
 
@@ -36,7 +36,7 @@ type VirtualNetworkUpdate struct {
 
 func (c *VirtualNetworkServiceOp) Page() (*Page, *[]VirtualNetwork, error) {
 	page := new(Page)
-	err := c.client.Get(iaasBasePath+"virtualnetwork/", page)
+	err := c.client.Get(iaasBasePath+"virtualnetwork", page)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -57,7 +57,7 @@ func (c *VirtualNetworkServiceOp) Get(id string) (*VirtualNetwork, error) {
 
 func (c *VirtualNetworkServiceOp) Create(vn *VirtualNetworkUpdate) (*VirtualNetworkTask, error) {
 	task := new(VirtualNetworkTask)
-	err := c.client.Post(iaasBasePath+"virtualnetwork/", vn, task)
+	err := c.client.Post(iaasBasePath+"virtualnetwork", vn, task)
 	return task, err
 }
 

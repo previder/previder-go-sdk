@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	defaultBaseURL = "https://portal.previder.nl/api/"
+	defaultBaseURL = "https://portal.previder.com/api/"
 	iaasBasePath   = "v2/iaas/"
 	jsonEncoding   = "application/json; charset=utf-8"
 )
@@ -140,7 +140,8 @@ func (c *BaseClient) request(method string, url string, requestBody, responseBod
 	}
 
 	if responseBody != nil {
-		if err := json.NewDecoder(res.Body).Decode(&responseBody); err != nil {
+		err := json.NewDecoder(res.Body).Decode(&responseBody)
+		if err != nil {
 			if err == io.EOF {
 				return nil
 			}

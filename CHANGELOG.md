@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 2023-04-28
+### Changed
+- Updated to Go 19
+- Altered API endpoints for non slash trailing endpoints
+
 ## 2019-08-22
 ### Added
 - Improved error handling in baseclient.go
