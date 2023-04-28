@@ -36,7 +36,7 @@ type Task struct {
 
 func (c *TaskServiceOp) List() (*[]Task, error) {
 	task := new([]Task)
-	err := c.client.Get(iaasBasePath+"task/", task)
+	err := c.client.Get(iaasBasePath+"task", task)
 	return task, err
 }
 
