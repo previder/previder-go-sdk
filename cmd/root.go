@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"github.com/previder/previder-go-sdk/client"
+	"github.com/spf13/cobra"
 	"os"
 )
 
@@ -17,7 +17,7 @@ var rootCmd = &cobra.Command{
                 more information can be found at https://portal.previder.com/`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		var err error
-		previderClient, err = client.New(&client.ClientOptions{Token: accessToken})
+		previderClient, err = client.New(&client.Options{Token: accessToken})
 		return err
 	},
 }
