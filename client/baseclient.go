@@ -15,6 +15,7 @@ const (
 	defaultBaseURL = "https://portal.previder.com/api/"
 	iaasBasePath   = "v2/iaas/"
 	jsonEncoding   = "application/json; charset=utf-8"
+	customerHeader = "X-CustomerId"
 )
 
 type BaseClient struct {
@@ -42,8 +43,9 @@ type ApiErrorResponseBody struct {
 }
 
 type ClientOptions struct {
-	Token   string
-	BaseUrl string
+	Token      string
+	BaseUrl    string
+	CustomerId string
 }
 
 type Page struct {
@@ -69,6 +71,7 @@ func New(options *ClientOptions) (*BaseClient, error) {
 	}
 
 	c := &BaseClient{httpClient: http.DefaultClient, clientOptions: options}
+
 	c.Task = &TaskServiceOp{client: c}
 	c.VirtualMachine = &VirtualMachineServiceOp{client: c}
 	c.VirtualNetwork = &VirtualNetworkServiceOp{client: c}
@@ -108,6 +111,10 @@ func (c *BaseClient) request(method string, url string, requestBody, responseBod
 	req.Header.Set("X-Auth-Token", c.clientOptions.Token)
 
 	req.Header.Set("Accept", jsonEncoding)
+
+	if c.clientOptions.CustomerId != "" && len(c.clientOptions.CustomerId) == 64 {
+		req.Header.Set(customerHeader, c.clientOptions.CustomerId)
+	}
 
 	res, requestErr := c.httpClient.Do(req)
 	if requestErr != nil {
