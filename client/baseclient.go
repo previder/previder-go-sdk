@@ -61,7 +61,7 @@ func (e *ApiError) Error() string {
 	return fmt.Sprintf("%d - %s", e.Code, e.Message)
 }
 
-//noinspection GoUnusedExportedFunction
+// noinspection GoUnusedExportedFunction
 func New(options *ClientOptions) (*BaseClient, error) {
 	if options.Token == "" {
 		return nil, fmt.Errorf("missing token")
@@ -112,7 +112,7 @@ func (c *BaseClient) request(method string, url string, requestBody, responseBod
 
 	req.Header.Set("Accept", jsonEncoding)
 
-	if c.clientOptions.CustomerId != "" && len(c.clientOptions.CustomerId) == 64 {
+	if c.clientOptions.CustomerId != "" && len(c.clientOptions.CustomerId) == 24 {
 		req.Header.Set(customerHeader, c.clientOptions.CustomerId)
 	}
 
