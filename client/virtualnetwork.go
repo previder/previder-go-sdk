@@ -26,6 +26,7 @@ type VirtualNetwork struct {
 	Group   string `json:"group,omitempty"`
 	Type    string `json:"type"`
 	Managed bool   `json:"managed"`
+	State   string `json:"state"`
 }
 
 type VirtualNetworkUpdate struct {
