@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 2024-06
+### Changed
+- Updated to Go 1.22
+- Added Kubernetes cluster support
+- Added extra fields to Virtual Machines and Virtual Networks
+
 ## 2023-04-28
 ### Changed
 - Updated to Go 19

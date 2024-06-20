@@ -2,6 +2,11 @@ package client
 
 import "encoding/json"
 
+const (
+	VirtualNetworkStateNew   = "NEW"
+	VirtualNetworkStateReady = "READY"
+)
+
 type VirtualNetworkService interface {
 	Page() (*Page, *[]VirtualNetwork, error)
 	Get(id string) (*VirtualNetwork, error)
@@ -37,13 +42,13 @@ type VirtualNetworkUpdate struct {
 
 func (c *VirtualNetworkServiceOp) Page() (*Page, *[]VirtualNetwork, error) {
 	page := new(Page)
-	err := c.client.Get(iaasBasePath+"virtualnetwork", page)
+	err := c.client.Get(iaasBasePath+"virtualnetwork", page, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	virtualNetworks := new([]VirtualNetwork)
-	if err := json.Unmarshal([]byte(page.Content), &virtualNetworks); err != nil {
+	if err := json.Unmarshal(page.Content, &virtualNetworks); err != nil {
 		return nil, nil, err
 	}
 
@@ -52,7 +57,7 @@ func (c *VirtualNetworkServiceOp) Page() (*Page, *[]VirtualNetwork, error) {
 
 func (c *VirtualNetworkServiceOp) Get(id string) (*VirtualNetwork, error) {
 	virtualNetwork := new(VirtualNetwork)
-	err := c.client.Get(iaasBasePath+"virtualnetwork/"+id, virtualNetwork)
+	err := c.client.Get(iaasBasePath+"virtualnetwork/"+id, virtualNetwork, nil)
 	return virtualNetwork, err
 }
 

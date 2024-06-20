@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"github.com/pkg/browser"
-	"github.com/spf13/cobra"
 	"github.com/previder/previder-go-sdk/client"
+	"github.com/spf13/cobra"
 	"os"
 	"strconv"
 	"strings"
@@ -145,7 +145,7 @@ func create(cmd *cobra.Command, args []string) error {
 			return nil
 		}
 		vm.Disks = append(vm.Disks, client.Disk{
-		//	Id:   &id,
+			//	Id:   &id,
 			Size: size / 1048576,
 		})
 	}
