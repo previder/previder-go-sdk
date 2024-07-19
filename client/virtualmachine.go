@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-//noinspection GoUnusedConst
+// noinspection GoUnusedConst
 const (
 	VmActionPowerOn  = "POWERON"
 	VmActionPowerOff = "POWEROFF"
@@ -12,6 +12,11 @@ const (
 	VmActionReboot   = "REBOOT"
 	VmActionSuspend  = "SUSPEND"
 	VmActionReset    = "RESET"
+
+	VmStateNew        = "NEW"
+	VmStateDeploying  = "DEPLOYING"
+	VmStatePoweredOff = "POWEREDOFF"
+	VmStatePoweredOn  = "POWEREDON"
 )
 
 type VirtualMachineService interface {
@@ -21,7 +26,7 @@ type VirtualMachineService interface {
 	Get(id string) (*VirtualMachineExt, error)
 	Create(vm *VirtualMachineCreate) (*VirtualMachineTask, error)
 	Delete(id string) (*VirtualMachineTask, error)
-	Update(id string, vm *VirtualMachineExt) (*VirtualMachineTask, error)
+	Update(id string, vm *VirtualMachineUpdate) (*VirtualMachineTask, error)
 	Control(id string, action string) (*VirtualMachineTask, error)
 	OpenConsole(id string) (*OpenConsoleResult, error)
 }
@@ -44,6 +49,7 @@ type VirtualMachine struct {
 	CpuCores         int    `json:"cpuCores"`
 	Memory           uint64 `json:"memory"`
 	Template         string `json:"template"`
+	GuestId          string `json:"guestId"`
 	State            string `json:"state"`
 	TotalDiskSize    int    `json:"totalDiskSize"`
 	HasSnapshots     bool   `json:"hasSnapshots"`
@@ -68,15 +74,32 @@ type VirtualMachineExt struct {
 	LastModifiedBy               string             `json:"lastModifiedBy"`
 }
 
+type VirtualMachineUpdate struct {
+	VirtualMachine
+	Tags                         []string                 `json:"tags"`
+	Disks                        []DiskUpdate             `json:"disks"`
+	NetworkInterfaces            []NetworkInterfaceUpdate `json:"networkInterfaces,"`
+	TerminationProtectionEnabled bool                     `json:"terminationProtectionEnabled"`
+	Flavor                       string                   `json:"flavor,omitempty"`
+}
+
 type Disk struct {
-	Id    *string `json:"id,omitempty"`
-	Size  uint64  `json:"size"`
-	Uuid  string  `json:"uuid,omitempty"`
-	Label string  `json:"label,omitempty"`
+	Id    string `json:"id,omitempty"`
+	Size  uint64 `json:"size"`
+	Uuid  string `json:"uuid,omitempty"`
+	Label string `json:"label,omitempty"`
+}
+
+type DiskUpdate struct {
+	Id     string `json:"id,omitempty"`
+	Size   uint64 `json:"size"`
+	Uuid   string `json:"uuid,omitempty"`
+	Label  string `json:"label,omitempty"`
+	Delete bool   `json:"delete,omitempty"`
 }
 
 type NetworkInterface struct {
-	Id                  *string  `json:"id,omitempty"`
+	Id                  string   `json:"id,omitempty"`
 	Network             string   `json:"network"`
 	Connected           bool     `json:"connected"`
 	MacAddress          string   `json:"macAddress,omitempty"`
@@ -84,6 +107,15 @@ type NetworkInterface struct {
 	AssignedAddresses   []string `json:"assignedAddresses,omitempty"`
 	Primary             bool     `json:"primary,omitempty"`
 	Label               string   `json:"label,omitempty"`
+	Type                string   `json:"type,omitempty"`
+}
+
+type NetworkInterfaceUpdate struct {
+	Id        string `json:"id,omitempty"`
+	Network   string `json:"network"`
+	Connected bool   `json:"connected"`
+	Label     string `json:"label,omitempty"`
+	Deleted   bool   `json:"deleted,omitempty"`
 }
 
 type VirtualMachineCreate struct {
@@ -93,6 +125,7 @@ type VirtualMachineCreate struct {
 	UserData             string `json:"userData,omitempty"`
 	GuestId              string `json:"guestId,omitempty"`
 	ProvisioningType     string `json:"provisioningType,omitempty"`
+	PowerOnAfterClone    bool   `json:"powerOnAfterClone,omitempty"`
 }
 
 type VirtualMachineTemplate struct {
@@ -114,25 +147,25 @@ type OpenConsoleResult struct {
 
 func (c *VirtualMachineServiceOp) ComputeClusterList() (*[]ComputeCluster, error) {
 	computeClusters := new([]ComputeCluster)
-	err := c.client.Get(iaasBasePath+"computecluster", computeClusters)
+	err := c.client.Get(iaasBasePath+"computecluster", computeClusters, nil)
 	return computeClusters, err
 }
 
 func (c *VirtualMachineServiceOp) VirtualMachineTemplateList() (*[]VirtualMachineTemplate, error) {
 	virtualMachineTemplates := new([]VirtualMachineTemplate)
-	err := c.client.Get(iaasBasePath+"template", virtualMachineTemplates)
+	err := c.client.Get(iaasBasePath+"template", virtualMachineTemplates, nil)
 	return virtualMachineTemplates, err
 }
 
 func (c *VirtualMachineServiceOp) Page() (*Page, *[]VirtualMachine, error) {
 	page := new(Page)
-	err := c.client.Get(iaasBasePath+"virtualmachine", page)
+	err := c.client.Get(iaasBasePath+"virtualmachine", page, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	virtualMachines := new([]VirtualMachine)
-	if err := json.Unmarshal([]byte(page.Content), &virtualMachines); err != nil {
+	if err := json.Unmarshal(page.Content, &virtualMachines); err != nil {
 		return nil, nil, err
 	}
 
@@ -141,7 +174,7 @@ func (c *VirtualMachineServiceOp) Page() (*Page, *[]VirtualMachine, error) {
 
 func (c *VirtualMachineServiceOp) Get(id string) (*VirtualMachineExt, error) {
 	virtualMachine := new(VirtualMachineExt)
-	err := c.client.Get(iaasBasePath+"virtualmachine/"+id, virtualMachine)
+	err := c.client.Get(iaasBasePath+"virtualmachine/"+id, virtualMachine, nil)
 	return virtualMachine, err
 }
 
@@ -151,7 +184,7 @@ func (c *VirtualMachineServiceOp) Create(vm *VirtualMachineCreate) (*VirtualMach
 	return task, err
 }
 
-func (c *VirtualMachineServiceOp) Update(id string, vm *VirtualMachineExt) (*VirtualMachineTask, error) {
+func (c *VirtualMachineServiceOp) Update(id string, vm *VirtualMachineUpdate) (*VirtualMachineTask, error) {
 	task := new(VirtualMachineTask)
 	err := c.client.Put(iaasBasePath+"virtualmachine/"+id, vm, task)
 	return task, err

@@ -5,29 +5,31 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 )
 
 const (
-	defaultBaseURL = "https://portal.previder.com/api/"
-	iaasBasePath   = "v2/iaas/"
-	jsonEncoding   = "application/json; charset=utf-8"
-	customerHeader = "X-CustomerId"
+	defaultBaseURL     = "https://portal.previder.com/api/"
+	iaasBasePath       = "v2/iaas/"
+	kubernetesBasePath = "v2/kubernetes/"
+	jsonEncoding       = "application/json; charset=utf-8"
+	customerHeader     = "X-CustomerId"
 )
 
 type BaseClient struct {
-	httpClient     *http.Client
-	clientOptions  *ClientOptions
-	Task           TaskService
-	VirtualMachine VirtualMachineService
-	VirtualNetwork VirtualNetworkService
+	httpClient        *http.Client
+	clientOptions     *ClientOptions
+	Task              TaskService
+	VirtualMachine    VirtualMachineService
+	VirtualNetwork    VirtualNetworkService
+	KubernetesCluster KubernetesClusterService
 }
 
 type ApiInfo struct {
-	Version string `json:"result,omitempty"`
+	Version string `json:"version,omitempty"`
+	Name    string `json:"name,omitempty"`
 }
 
 type ApiError struct {
@@ -48,15 +50,6 @@ type ClientOptions struct {
 	CustomerId string
 }
 
-type Page struct {
-	TotalPages       int
-	TotalElements    int
-	NumberOfElements int
-	Size             int
-	Number           int
-	Content          json.RawMessage
-}
-
 func (e *ApiError) Error() string {
 	return fmt.Sprintf("%d - %s", e.Code, e.Message)
 }
@@ -75,26 +68,27 @@ func New(options *ClientOptions) (*BaseClient, error) {
 	c.Task = &TaskServiceOp{client: c}
 	c.VirtualMachine = &VirtualMachineServiceOp{client: c}
 	c.VirtualNetwork = &VirtualNetworkServiceOp{client: c}
+	c.KubernetesCluster = &KubernetesClusterServiceOp{client: c}
 	return c, nil
 }
 
-func (c *BaseClient) Get(url string, responseBody interface{}) error {
-	return c.request("GET", url, nil, &responseBody)
+func (c *BaseClient) Get(url string, responseBody interface{}, requestParams *PageRequest) error {
+	return c.request("GET", url, nil, requestParams, &responseBody)
 }
 
 func (c *BaseClient) Delete(url string, responseBody interface{}) error {
-	return c.request("DELETE", url, nil, &responseBody)
+	return c.request("DELETE", url, nil, nil, &responseBody)
 }
 
 func (c *BaseClient) Post(url string, requestBody, responseBody interface{}) error {
-	return c.request("POST", url, &requestBody, &responseBody)
+	return c.request("POST", url, &requestBody, nil, &responseBody)
 }
 
 func (c *BaseClient) Put(url string, requestBody, responseBody interface{}) error {
-	return c.request("PUT", url, &requestBody, &responseBody)
+	return c.request("PUT", url, &requestBody, nil, &responseBody)
 }
 
-func (c *BaseClient) request(method string, url string, requestBody, responseBody interface{}) error {
+func (c *BaseClient) request(method string, url string, requestBody interface{}, pageRequest *PageRequest, responseBody interface{}) error {
 
 	// content will be empty with GET, so can be sent anyway
 	b := new(bytes.Buffer)
@@ -115,7 +109,14 @@ func (c *BaseClient) request(method string, url string, requestBody, responseBod
 	if c.clientOptions.CustomerId != "" && len(c.clientOptions.CustomerId) == 24 {
 		req.Header.Set(customerHeader, c.clientOptions.CustomerId)
 	}
-
+	if pageRequest != nil {
+		q := req.URL.Query()
+		q.Add("size", strconv.Itoa(pageRequest.Size))
+		q.Add("page", strconv.Itoa(pageRequest.Page))
+		q.Add("sort", pageRequest.Sort)
+		q.Add("query", pageRequest.Query)
+		req.URL.RawQuery = q.Encode()
+	}
 	res, requestErr := c.httpClient.Do(req)
 	if requestErr != nil {
 		log.Printf("[ERROR] [Previder API] Error from Previder API received")
@@ -133,9 +134,12 @@ func (c *BaseClient) request(method string, url string, requestBody, responseBod
 		apiError := new(ApiError)
 
 		var apiErrorResponseBody ApiErrorResponseBody
-		temp, err := ioutil.ReadAll(res.Body)
-
+		temp, err := io.ReadAll(res.Body)
 		err = json.Unmarshal(temp, &apiErrorResponseBody)
+		var tmpBuffer any
+		json.Unmarshal(temp, &tmpBuffer)
+		fmt.Println(tmpBuffer)
+
 		if err != nil {
 			log.Printf("[ERROR] [Previder API] Could not parse error result:" + string(temp))
 			return err
@@ -143,6 +147,9 @@ func (c *BaseClient) request(method string, url string, requestBody, responseBod
 		log.Printf("[ERROR] [Previder API] Error while executing the request to " + apiErrorResponseBody.Path + ": [" + strconv.Itoa(apiErrorResponseBody.Status) + "] " + apiErrorResponseBody.Message)
 		apiError.Code = res.StatusCode
 		apiError.Message = "[Previder API] " + apiErrorResponseBody.Message
+		if apiErrorResponseBody.Error != "" {
+			apiError.Message = apiError.Message + " - " + apiErrorResponseBody.Error
+		}
 		return apiError
 	}
 
@@ -161,6 +168,6 @@ func (c *BaseClient) request(method string, url string, requestBody, responseBod
 
 func (c *BaseClient) ApiInfo() (*ApiInfo, error) {
 	apiInfo := new(ApiInfo)
-	err := c.Get("", apiInfo)
+	err := c.Get("", apiInfo, nil)
 	return apiInfo, err
 }
