@@ -14,6 +14,7 @@ const (
 	defaultBaseURL     = "https://portal.previder.com/api/"
 	iaasBasePath       = "v2/iaas/"
 	kubernetesBasePath = "v2/kubernetes/"
+	staasBasePath      = "v2/storage/staas/"
 	jsonEncoding       = "application/json; charset=utf-8"
 	customerHeader     = "X-CustomerId"
 )
@@ -25,6 +26,7 @@ type BaseClient struct {
 	VirtualMachine    VirtualMachineService
 	VirtualNetwork    VirtualNetworkService
 	KubernetesCluster KubernetesClusterService
+	STaaSEnvironment  STaaSEnvironmentService
 }
 
 type ApiInfo struct {
@@ -50,6 +52,12 @@ type ClientOptions struct {
 	CustomerId string
 }
 
+type OwnerReference struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
 func (e *ApiError) Error() string {
 	return fmt.Sprintf("%d - %s", e.Code, e.Message)
 }
@@ -69,6 +77,7 @@ func New(options *ClientOptions) (*BaseClient, error) {
 	c.VirtualMachine = &VirtualMachineServiceOp{client: c}
 	c.VirtualNetwork = &VirtualNetworkServiceOp{client: c}
 	c.KubernetesCluster = &KubernetesClusterServiceOp{client: c}
+	c.STaaSEnvironment = &STaaSEnvironmentServiceOp{client: c}
 	return c, nil
 }
 
