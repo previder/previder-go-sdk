@@ -6,8 +6,13 @@ type STaaSEnvironmentService interface {
 	Page(request PageRequest) (*Page, *[]STaaSEnvironment, error)
 	Get(id string) (*STaaSEnvironmentExt, error)
 	Create(create STaaSEnvironmentCreate) error
-	Delete(id string) error
+	Delete(id string, delete STaaSEnvironmentDelete) error
 	Update(id string, update STaaSEnvironmentUpdate) error
+	CreateVolume(id string, create STaaSVolumeCreate) error
+	UpdateVolume(id string, volumeId string, update STaaSVolumeUpdate) error
+	DeleteVolume(id string, volumeId string, delete STaaSVolumeDelete) error
+	CreateNetwork(id string, create STaaSNetworkCreate) error
+	DeleteNetwork(id string, networkId string) error
 }
 
 type STaaSEnvironmentServiceOp struct {
@@ -34,6 +39,10 @@ type STaaSEnvironmentExt struct {
 	SynchronousClusterId string            `json:"synchronousClusterId,omitempty"`
 }
 
+type STaaSEnvironmentDelete struct {
+	Force bool `json:"force"`
+}
+
 type STaaSVolume struct {
 	Id                         string   `json:"id,omitempty"`
 	Name                       string   `json:"name"`
@@ -48,9 +57,8 @@ type STaaSVolume struct {
 
 type STaaSNetwork struct {
 	Id          string   `json:"id,omitempty"`
-	Name        string   `json:"name"`
 	State       string   `json:"state"`
-	Network     string   `json:"network"`
+	NetworkName string   `json:"networkName"`
 	NetworkId   string   `json:"networkId"`
 	IpAddresses []string `json:"ipAddresses,omitempty"`
 	Cidr        string   `json:"cidr,omitempty"`
@@ -72,11 +80,9 @@ type STaaSRoute struct {
 
 type STaaSEnvironmentCreate struct {
 	STaaSEnvironment
-	Volume  STaaSVolumeCreate  `json:"volume,omitempty"`
-	Network STaaSNetworkCreate `json:"network,omitempty"`
-	Windows bool               `json:"windows,omitempty"`
-	Type    string             `json:"type"`
-	Cluster string             `json:"cluster"`
+	Windows bool   `json:"windows,omitempty"`
+	Type    string `json:"type"`
+	Cluster string `json:"cluster"`
 }
 
 type STaaSEnvironmentUpdate struct {
@@ -90,13 +96,21 @@ type STaaSNetworkCreate struct {
 }
 
 type STaaSVolumeCreate struct {
-	Name                       string `json:"name"`
-	Type                       string `json:"type"`
-	SynchronousEnvironmentId   string `json:"synchronousEnvironmentId,omitempty"`
-	SynchronousEnvironmentName string `json:"synchronousEnvironmentName,omitempty"`
-	AllowedIpsRo               string `json:"allowedIpsRo,omitempty"`
-	AllowedIpsRw               string `json:"allowedIpsRw,omitempty"`
-	SizeMb                     int    `json:"sizeMb"`
+	Name                       string   `json:"name"`
+	Type                       string   `json:"type"`
+	SynchronousEnvironmentId   string   `json:"synchronousEnvironmentId,omitempty"`
+	SynchronousEnvironmentName string   `json:"synchronousEnvironmentName,omitempty"`
+	AllowedIpsRo               []string `json:"allowedIpsRo,omitempty"`
+	AllowedIpsRw               []string `json:"allowedIpsRw,omitempty"`
+	SizeMb                     int      `json:"sizeMb"`
+}
+
+type STaaSVolumeUpdate struct {
+	STaaSVolumeCreate
+}
+
+type STaaSVolumeDelete struct {
+	Force bool `json:"force"`
 }
 
 func (c *STaaSEnvironmentServiceOp) Page(request PageRequest) (*Page, *[]STaaSEnvironment, error) {
@@ -130,7 +144,32 @@ func (c *STaaSEnvironmentServiceOp) Update(id string, update STaaSEnvironmentUpd
 	return err
 }
 
-func (c *STaaSEnvironmentServiceOp) Delete(id string) error {
-	err := c.client.Delete(staasBasePath+"/environment/"+id, nil)
+func (c *STaaSEnvironmentServiceOp) Delete(id string, delete STaaSEnvironmentDelete) error {
+	err := c.client.Delete(staasBasePath+"/environment/"+id, delete)
+	return err
+}
+
+func (c *STaaSEnvironmentServiceOp) CreateVolume(id string, create STaaSVolumeCreate) error {
+	err := c.client.Post(staasBasePath+"/environment/"+id+"/volume", create, nil)
+	return err
+}
+
+func (c *STaaSEnvironmentServiceOp) UpdateVolume(id string, volumeId string, create STaaSVolumeUpdate) error {
+	err := c.client.Put(staasBasePath+"/environment/"+id+"/volume/"+volumeId, create, nil)
+	return err
+}
+
+func (c *STaaSEnvironmentServiceOp) DeleteVolume(id string, volumeId string, delete STaaSVolumeDelete) error {
+	err := c.client.Delete(staasBasePath+"/environment/"+id+"/volume/"+volumeId, delete)
+	return err
+}
+
+func (c *STaaSEnvironmentServiceOp) CreateNetwork(id string, create STaaSNetworkCreate) error {
+	err := c.client.Post(staasBasePath+"/environment/"+id+"/network", create, nil)
+	return err
+}
+
+func (c *STaaSEnvironmentServiceOp) DeleteNetwork(id string, networkId string) error {
+	err := c.client.Delete(staasBasePath+"/environment/"+id+"/network/"+networkId, nil)
 	return err
 }

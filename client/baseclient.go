@@ -86,7 +86,7 @@ func (c *BaseClient) Get(url string, responseBody interface{}, requestParams *Pa
 }
 
 func (c *BaseClient) Delete(url string, responseBody interface{}) error {
-	return c.request("DELETE", url, nil, nil, &responseBody)
+	return c.request("DELETE", url, &responseBody, nil, &responseBody)
 }
 
 func (c *BaseClient) Post(url string, requestBody, responseBody interface{}) error {

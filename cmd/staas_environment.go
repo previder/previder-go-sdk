@@ -105,10 +105,6 @@ func createSTaaSEnvironment(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	create.Network.Network, err = cmd.Flags().GetString("network-id")
-	if err != nil {
-		return err
-	}
 
 	previderClient.STaaSEnvironment.Create(create)
 	return nil
