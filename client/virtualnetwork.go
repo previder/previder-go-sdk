@@ -8,7 +8,7 @@ const (
 )
 
 type VirtualNetworkService interface {
-	Page() (*Page, *[]VirtualNetwork, error)
+	Page(request PageRequest) (*Page, *[]VirtualNetwork, error)
 	Get(id string) (*VirtualNetwork, error)
 	Create(vn *VirtualNetworkUpdate) (*VirtualNetworkTask, error)
 	Delete(id string) (*VirtualNetworkTask, error)
@@ -40,9 +40,9 @@ type VirtualNetworkUpdate struct {
 	Group string `json:"group,omitempty"`
 }
 
-func (c *VirtualNetworkServiceOp) Page() (*Page, *[]VirtualNetwork, error) {
+func (c *VirtualNetworkServiceOp) Page(request PageRequest) (*Page, *[]VirtualNetwork, error) {
 	page := new(Page)
-	err := c.client.Get(iaasBasePath+"virtualnetwork", page, nil)
+	err := c.client.Get(iaasBasePath+"virtualnetwork", page, &request)
 	if err != nil {
 		return nil, nil, err
 	}

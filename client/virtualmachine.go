@@ -22,7 +22,7 @@ const (
 type VirtualMachineService interface {
 	ComputeClusterList() (*[]ComputeCluster, error)
 	VirtualMachineTemplateList() (*[]VirtualMachineTemplate, error)
-	Page() (*Page, *[]VirtualMachine, error)
+	Page(request PageRequest) (*Page, *[]VirtualMachine, error)
 	Get(id string) (*VirtualMachineExt, error)
 	Create(vm *VirtualMachineCreate) (*VirtualMachineTask, error)
 	Delete(id string) (*VirtualMachineTask, error)
@@ -157,9 +157,9 @@ func (c *VirtualMachineServiceOp) VirtualMachineTemplateList() (*[]VirtualMachin
 	return virtualMachineTemplates, err
 }
 
-func (c *VirtualMachineServiceOp) Page() (*Page, *[]VirtualMachine, error) {
+func (c *VirtualMachineServiceOp) Page(request PageRequest) (*Page, *[]VirtualMachine, error) {
 	page := new(Page)
-	err := c.client.Get(iaasBasePath+"virtualmachine", page, nil)
+	err := c.client.Get(iaasBasePath+"virtualmachine", page, &request)
 	if err != nil {
 		return nil, nil, err
 	}
