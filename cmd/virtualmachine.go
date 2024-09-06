@@ -75,7 +75,13 @@ func init() {
 }
 
 func list(cmd *cobra.Command, args []string) error {
-	_, content, err := previderClient.VirtualMachine.Page()
+	var page client.PageRequest
+	page.Size = 100
+	page.Page = 0
+	page.Sort = "+name"
+	page.Query = ""
+
+	_, content, err := previderClient.VirtualMachine.Page(page)
 	if err != nil {
 		fmt.Println(err)
 	}
