@@ -15,7 +15,7 @@ type VirtualNetworkService interface {
 	Update(id string, vn *VirtualNetworkUpdate) (*VirtualNetworkTask, error)
 }
 
-type VirtualNetworkServiceOp struct {
+type VirtualNetworkServiceImpl struct {
 	client *BaseClient
 }
 
@@ -26,12 +26,13 @@ type VirtualNetworkTask struct {
 }
 
 type VirtualNetwork struct {
-	Id      string `json:"id"`
-	Name    string `json:"name"`
-	Group   string `json:"group,omitempty"`
-	Type    string `json:"type"`
-	Managed bool   `json:"managed"`
-	State   string `json:"state"`
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	Group     string `json:"group,omitempty"`
+	GroupName string `json:"groupName,omitempty"`
+	Type      string `json:"type"`
+	Managed   bool   `json:"managed"`
+	State     string `json:"state"`
 }
 
 type VirtualNetworkUpdate struct {
@@ -40,7 +41,7 @@ type VirtualNetworkUpdate struct {
 	Group string `json:"group,omitempty"`
 }
 
-func (c *VirtualNetworkServiceOp) Page(request PageRequest) (*Page, *[]VirtualNetwork, error) {
+func (c *VirtualNetworkServiceImpl) Page(request PageRequest) (*Page, *[]VirtualNetwork, error) {
 	page := new(Page)
 	err := c.client.Get(iaasBasePath+"virtualnetwork", page, &request)
 	if err != nil {
@@ -55,25 +56,25 @@ func (c *VirtualNetworkServiceOp) Page(request PageRequest) (*Page, *[]VirtualNe
 	return page, virtualNetworks, err
 }
 
-func (c *VirtualNetworkServiceOp) Get(id string) (*VirtualNetwork, error) {
+func (c *VirtualNetworkServiceImpl) Get(id string) (*VirtualNetwork, error) {
 	virtualNetwork := new(VirtualNetwork)
 	err := c.client.Get(iaasBasePath+"virtualnetwork/"+id, virtualNetwork, nil)
 	return virtualNetwork, err
 }
 
-func (c *VirtualNetworkServiceOp) Create(vn *VirtualNetworkUpdate) (*VirtualNetworkTask, error) {
+func (c *VirtualNetworkServiceImpl) Create(vn *VirtualNetworkUpdate) (*VirtualNetworkTask, error) {
 	task := new(VirtualNetworkTask)
 	err := c.client.Post(iaasBasePath+"virtualnetwork", vn, task)
 	return task, err
 }
 
-func (c *VirtualNetworkServiceOp) Update(id string, vn *VirtualNetworkUpdate) (*VirtualNetworkTask, error) {
+func (c *VirtualNetworkServiceImpl) Update(id string, vn *VirtualNetworkUpdate) (*VirtualNetworkTask, error) {
 	task := new(VirtualNetworkTask)
 	err := c.client.Put(iaasBasePath+"virtualnetwork/"+id, vn, task)
 	return task, err
 }
 
-func (c *VirtualNetworkServiceOp) Delete(id string) (*VirtualNetworkTask, error) {
+func (c *VirtualNetworkServiceImpl) Delete(id string) (*VirtualNetworkTask, error) {
 	task := new(VirtualNetworkTask)
 	err := c.client.Delete(iaasBasePath+"virtualnetwork/"+id, task)
 	return task, err

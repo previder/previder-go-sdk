@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 2024-09
+- Added Virtual Firewall support
+
+## 2024-08
+- Added STaaS support
+
 ## 2024-06
 ### Changed
 - Updated to Go 1.22

@@ -5,6 +5,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"github.com/previder/previder-go-sdk/client"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 )
 
@@ -96,7 +97,7 @@ func listKubernetesCluster(cmd *cobra.Command, args []string) error {
 func getKubernetesCluster(cmd *cobra.Command, args []string) error {
 	content, err := previderClient.KubernetesCluster.Get(args[0])
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err.Error())
 	}
 	fmt.Printf("%+v\n", content)
 	return nil
