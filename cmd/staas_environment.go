@@ -37,18 +37,20 @@ func init() {
 		RunE:  createSTaaSEnvironment,
 	}
 
-	cmdCreate.Flags().StringP("name", "", "name", "Name of the cluster")
-	cmdCreate.Flags().StringP("type", "", "nfs", "Type (NFS or ISCSI)")
-	cmdCreate.Flags().StringP("cluster", "", "nfs", "ID of the STaaS cluster")
+	cmdCreate.Flags().String("name", "name", "Name of the cluster")
+	cmdCreate.MarkFlagRequired("name")
+	cmdCreate.Flags().String("type", "nfs", "Type (NFS or ISCSI)")
+	cmdCreate.Flags().String("cluster", "", "ID of the STaaS cluster")
+	cmdCreate.MarkFlagRequired("cluster")
 
-	cmdCreate.Flags().StringP("volume-name", "", "my-volume", "Name of the initial volume")
-	cmdCreate.Flags().IntP("volume-sizemb", "", 10240, "Size of the initial volume")
-	cmdCreate.Flags().StringP("volume-type", "", "express", "Type of the initial volume. Refer to STaaS cluster information for available storage types")
-	cmdCreate.Flags().StringP("volume-allowedipro", "", "192.168.0.0/24", "Comma-seperated list of cidrs that are allowed to read the volume")
-	cmdCreate.Flags().StringP("volume-allowediprw", "", "192.168.0.0/24", "Comma-seperated list of cidrs that are allowed to write to the volume")
+	/*cmdCreate.Flags().String("volume-name", "my-volume", "Name of the initial volume")
+	cmdCreate.Flags().Int("volume-sizemb", 10240, "Size of the initial volume")
+	cmdCreate.Flags().String("volume-type", "express", "Type of the initial volume. Refer to STaaS cluster information for available storage types")
+	cmdCreate.Flags().String("volume-allowedipro", "192.168.0.0/24", "Comma-seperated list of cidrs that are allowed to read the volume")
+	cmdCreate.Flags().String("volume-allowediprw", "192.168.0.0/24", "Comma-seperated list of cidrs that are allowed to write to the volume")
 
-	cmdCreate.Flags().StringP("network-id", "", "my-volume", "ID of the virtual network. Target network must be type Cloud VLAN")
-	cmdCreate.Flags().StringP("network-cidr", "", "192.168.0.50/24", "IP address in CIDR format.")
+	cmdCreate.Flags().String("network-id", "my-volume", "ID of the virtual network. Target network must be type Cloud VLAN")
+	cmdCreate.Flags().String("network-cidr", "192.168.0.50/24", "IP address in CIDR format.")*/
 
 	staasEnvironmentCmd.AddCommand(cmdCreate)
 

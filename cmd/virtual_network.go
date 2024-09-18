@@ -69,9 +69,10 @@ func listVirtualNetwork(cmd *cobra.Command, args []string) error {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Name", "Group", "Type", "State"})
+	table.SetHeader([]string{"ID", "Name", "Group", "Type", "State"})
 	for _, virtualNetwork := range *content {
 		table.Append([]string{
+			virtualNetwork.Id,
 			virtualNetwork.Name,
 			virtualNetwork.GroupName,
 			virtualNetwork.Type,
