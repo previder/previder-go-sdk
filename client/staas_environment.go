@@ -134,9 +134,10 @@ func (c *STaaSEnvironmentServiceImpl) Get(id string) (*STaaSEnvironmentExt, erro
 	return environment, err
 }
 
-func (c *STaaSEnvironmentServiceImpl) Create(create STaaSEnvironmentCreate) error {
-	err := c.client.Post(staasBasePath+"/environment", create, nil)
-	return err
+func (c *STaaSEnvironmentServiceImpl) Create(create STaaSEnvironmentCreate) (*Reference, error) {
+	response := new(Reference)
+	err := c.client.Post(staasBasePath+"/environment", create, &response)
+	return response, err
 }
 
 func (c *STaaSEnvironmentServiceImpl) Update(id string, update STaaSEnvironmentUpdate) error {

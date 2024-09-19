@@ -8,7 +8,7 @@ import (
 type VirtualFirewallService interface {
 	Page(request PageRequest) (*Page, *[]VirtualFirewall, error)
 	Get(id string) (*VirtualFirewallExt, error)
-	Create(create VirtualFirewallCreate) error
+	Create(create VirtualFirewallCreate) (*Reference, error)
 	Delete(id string) error
 	Update(id string, update VirtualFirewallUpdate) error
 	PageNatRules(firewallId string, request PageRequest) (*Page, *[]VirtualFirewallNatRule, error)
@@ -114,9 +114,10 @@ func (c *VirtualFirewallServiceImpl) Get(id string) (*VirtualFirewallExt, error)
 	return cluster, err
 }
 
-func (c *VirtualFirewallServiceImpl) Create(create VirtualFirewallCreate) error {
-	err := c.client.Post(iaasBasePath+"/virtualfirewall", create, nil)
-	return err
+func (c *VirtualFirewallServiceImpl) Create(create VirtualFirewallCreate) (*Reference, error) {
+	response := new(Reference)
+	err := c.client.Post(iaasBasePath+"/virtualfirewall", create, response)
+	return response, err
 }
 
 func (c *VirtualFirewallServiceImpl) Update(id string, update VirtualFirewallUpdate) error {
@@ -137,12 +138,12 @@ func (c *VirtualFirewallServiceImpl) PageNatRules(firewallId string, request Pag
 		return nil, nil, err
 	}
 
-	clusters := new([]VirtualFirewallNatRule)
-	if err := json.Unmarshal(page.Content, &clusters); err != nil {
+	rules := new([]VirtualFirewallNatRule)
+	if err := json.Unmarshal(page.Content, &rules); err != nil {
 		return nil, nil, err
 	}
 
-	return page, clusters, err
+	return page, rules, err
 }
 
 func (c *VirtualFirewallServiceImpl) CreateNatRule(firewallId string, create VirtualFirewallNatRuleCreate) error {

@@ -41,13 +41,13 @@ func init() {
 		Args:  cobra.NoArgs,
 		RunE:  createVirtualFirewall,
 		PreRun: func(cmd *cobra.Command, args []string) {
-			dhcpEnabled, err := cmd.Flags().GetBool("dhcpEnabled")
+			dhcpEnabled, err := cmd.Flags().GetBool("dhcp-enabled")
 			if err != nil {
 				log.Fatal("Error parsing DHCP config")
 			}
 			if dhcpEnabled {
-				cmd.MarkFlagRequired("dhcpRangeStart")
-				cmd.MarkFlagRequired("dhcpRangeEnd")
+				cmd.MarkFlagRequired("dhcp-range-start")
+				cmd.MarkFlagRequired("dhcp-range-end")
 			}
 		},
 	}
@@ -252,12 +252,12 @@ func createVirtualFirewall(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = previderClient.VirtualFirewall.Create(virtualfirewall)
+	createdFirewall, err := previderClient.VirtualFirewall.Create(virtualfirewall)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	log.Println("Virtual Firewall create successful")
+	log.Println(fmt.Sprintf("Virtual Firewall create successful: %v (%v)", createdFirewall.Name, createdFirewall.Id))
 	return nil
 }
 
