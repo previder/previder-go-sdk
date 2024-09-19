@@ -5,7 +5,7 @@ import "encoding/json"
 type STaaSEnvironmentService interface {
 	Page(request PageRequest) (*Page, *[]STaaSEnvironment, error)
 	Get(id string) (*STaaSEnvironmentExt, error)
-	Create(create STaaSEnvironmentCreate) error
+	Create(create STaaSEnvironmentCreate) (*Reference, error)
 	Delete(id string, delete STaaSEnvironmentDelete) error
 	Update(id string, update STaaSEnvironmentUpdate) error
 	CreateVolume(id string, create STaaSVolumeCreate) error
