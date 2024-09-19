@@ -12,13 +12,13 @@ type VirtualFirewallService interface {
 	Delete(id string) error
 	Update(id string, update VirtualFirewallUpdate) error
 	PageNatRules(firewallId string, request PageRequest) (*Page, *[]VirtualFirewallNatRule, error)
-	CreateNatRule(firewallId string, create VirtualFirewallNatRuleCreate) error
+	CreateNatRule(firewallId string, create VirtualFirewallNatRuleCreate) (*Reference, error)
 	UpdateNatRule(firewallId string, id string, create VirtualFirewallNatRuleCreate) error
 	DeleteNatRule(firewallId string, id string) error
 }
 
 type VirtualFirewallServiceImpl struct {
-	client *BaseClient
+	client *PreviderClient
 }
 
 type VirtualFirewall struct {
@@ -146,9 +146,10 @@ func (c *VirtualFirewallServiceImpl) PageNatRules(firewallId string, request Pag
 	return page, rules, err
 }
 
-func (c *VirtualFirewallServiceImpl) CreateNatRule(firewallId string, create VirtualFirewallNatRuleCreate) error {
-	err := c.client.Post(iaasBasePath+"/virtualfirewall/"+firewallId+"/natrules", create, nil)
-	return err
+func (c *VirtualFirewallServiceImpl) CreateNatRule(firewallId string, create VirtualFirewallNatRuleCreate) (*Reference, error) {
+	response := new(Reference)
+	err := c.client.Post(iaasBasePath+"/virtualfirewall/"+firewallId+"/natrules", create, &response)
+	return response, err
 }
 
 func (c *VirtualFirewallServiceImpl) UpdateNatRule(firewallId string, id string, create VirtualFirewallNatRuleCreate) error {

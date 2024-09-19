@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## 2024-09
 - Added Virtual Firewall support
+- Seperated CLI into [previder-cli](github.com/previder/previder-cli)
+- Renamed BaseClient to PreviderClient
+- Renamed all implementations to Impl
 
 ## 2024-08
 - Added STaaS support

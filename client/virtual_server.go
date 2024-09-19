@@ -32,7 +32,7 @@ type VirtualServerService interface {
 }
 
 type VirtualServerServiceImpl struct {
-	client *BaseClient
+	client *PreviderClient
 }
 
 type VirtualMachineTask struct {
@@ -45,6 +45,7 @@ type VirtualMachine struct {
 	Id               string `json:"id,omitempty"`
 	Name             string `json:"name"`
 	Group            string `json:"group,omitempty"`
+	GroupName        string `json:"groupName,omitempty"`
 	ComputeCluster   string `json:"computeCluster"`
 	CpuCores         int    `json:"cpuCores"`
 	Memory           uint64 `json:"memory"`

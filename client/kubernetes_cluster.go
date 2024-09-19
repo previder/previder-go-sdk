@@ -7,14 +7,14 @@ import (
 type KubernetesClusterService interface {
 	Page(request PageRequest) (*Page, *[]KubernetesCluster, error)
 	Get(id string) (*KubernetesClusterExt, error)
-	Create(create KubernetesClusterCreate) error
+	Create(create KubernetesClusterCreate) (*Reference, error)
 	Delete(id string) error
 	Update(id string, update KubernetesClusterUpdate) error
 	GetKubeConfig(id string, endpoint string) (KubernetesClusterKubeConfigResponse, error)
 }
 
 type KubernetesClusterServiceImpl struct {
-	client *BaseClient
+	client *PreviderClient
 }
 
 type KubernetesCluster struct {
@@ -99,9 +99,10 @@ func (c *KubernetesClusterServiceImpl) Get(id string) (*KubernetesClusterExt, er
 	return cluster, err
 }
 
-func (c *KubernetesClusterServiceImpl) Create(create KubernetesClusterCreate) error {
-	err := c.client.Post(kubernetesBasePath+"cluster", create, nil)
-	return err
+func (c *KubernetesClusterServiceImpl) Create(create KubernetesClusterCreate) (*Reference, error) {
+	response := new(Reference)
+	err := c.client.Post(kubernetesBasePath+"cluster", create, &response)
+	return response, err
 }
 
 func (c *KubernetesClusterServiceImpl) Update(id string, update KubernetesClusterUpdate) error {

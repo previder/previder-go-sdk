@@ -16,7 +16,7 @@ type VirtualNetworkService interface {
 }
 
 type VirtualNetworkServiceImpl struct {
-	client *BaseClient
+	client *PreviderClient
 }
 
 type VirtualNetworkTask struct {

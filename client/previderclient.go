@@ -20,7 +20,7 @@ const (
 	customerHeader     = "X-CustomerId"
 )
 
-type BaseClient struct {
+type PreviderClient struct {
 	httpClient        *http.Client
 	clientOptions     *ClientOptions
 	Task              TaskService
@@ -59,7 +59,7 @@ func (e *ApiError) Error() string {
 }
 
 // noinspection GoUnusedExportedFunction
-func New(options *ClientOptions) (*BaseClient, error) {
+func New(options *ClientOptions) (*PreviderClient, error) {
 	if options.Token == "" {
 		return nil, fmt.Errorf("missing token")
 	}
@@ -76,7 +76,7 @@ func New(options *ClientOptions) (*BaseClient, error) {
 		options.BaseUrl = "https://" + options.BaseUrl
 	}
 
-	c := &BaseClient{httpClient: http.DefaultClient, clientOptions: options}
+	c := &PreviderClient{httpClient: http.DefaultClient, clientOptions: options}
 
 	c.Task = &TaskServiceOp{client: c}
 	c.VirtualServer = &VirtualServerServiceImpl{client: c}
@@ -87,23 +87,23 @@ func New(options *ClientOptions) (*BaseClient, error) {
 	return c, nil
 }
 
-func (c *BaseClient) Get(url string, responseBody interface{}, requestParams *PageRequest) error {
+func (c *PreviderClient) Get(url string, responseBody interface{}, requestParams *PageRequest) error {
 	return c.request("GET", url, nil, requestParams, &responseBody)
 }
 
-func (c *BaseClient) Delete(url string, responseBody interface{}) error {
+func (c *PreviderClient) Delete(url string, responseBody interface{}) error {
 	return c.request("DELETE", url, &responseBody, nil, &responseBody)
 }
 
-func (c *BaseClient) Post(url string, requestBody, responseBody interface{}) error {
+func (c *PreviderClient) Post(url string, requestBody, responseBody interface{}) error {
 	return c.request("POST", url, &requestBody, nil, &responseBody)
 }
 
-func (c *BaseClient) Put(url string, requestBody, responseBody interface{}) error {
+func (c *PreviderClient) Put(url string, requestBody, responseBody interface{}) error {
 	return c.request("PUT", url, &requestBody, nil, &responseBody)
 }
 
-func (c *BaseClient) request(method string, url string, requestBody interface{}, pageRequest *PageRequest, responseBody interface{}) error {
+func (c *PreviderClient) request(method string, url string, requestBody interface{}, pageRequest *PageRequest, responseBody interface{}) error {
 
 	// content will be empty with GET, so can be sent anyway
 	b := new(bytes.Buffer)
@@ -184,7 +184,7 @@ func (c *BaseClient) request(method string, url string, requestBody interface{},
 	return nil
 }
 
-func (c *BaseClient) ApiInfo() (*ApiInfo, error) {
+func (c *PreviderClient) ApiInfo() (*ApiInfo, error) {
 	apiInfo := new(ApiInfo)
 	err := c.Get("", apiInfo, nil)
 	return apiInfo, err

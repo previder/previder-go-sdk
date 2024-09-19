@@ -17,7 +17,7 @@ type TaskService interface {
 }
 
 type TaskServiceOp struct {
-	client *BaseClient
+	client *PreviderClient
 }
 
 type Task struct {

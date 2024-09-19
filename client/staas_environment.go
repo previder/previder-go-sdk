@@ -16,7 +16,7 @@ type STaaSEnvironmentService interface {
 }
 
 type STaaSEnvironmentServiceImpl struct {
-	client *BaseClient
+	client *PreviderClient
 }
 
 type STaaSEnvironment struct {
