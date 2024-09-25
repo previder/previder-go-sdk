@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -19,12 +20,13 @@ const (
 	customerHeader     = "X-CustomerId"
 )
 
-type BaseClient struct {
+type PreviderClient struct {
 	httpClient        *http.Client
 	clientOptions     *ClientOptions
 	Task              TaskService
-	VirtualMachine    VirtualMachineService
+	VirtualServer     VirtualServerService
 	VirtualNetwork    VirtualNetworkService
+	VirtualFirewall   VirtualFirewallService
 	KubernetesCluster KubernetesClusterService
 	STaaSEnvironment  STaaSEnvironmentService
 }
@@ -52,52 +54,56 @@ type ClientOptions struct {
 	CustomerId string
 }
 
-type OwnerReference struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-	Type string `json:"type"`
-}
-
 func (e *ApiError) Error() string {
 	return fmt.Sprintf("%d - %s", e.Code, e.Message)
 }
 
 // noinspection GoUnusedExportedFunction
-func New(options *ClientOptions) (*BaseClient, error) {
+func New(options *ClientOptions) (*PreviderClient, error) {
 	if options.Token == "" {
 		return nil, fmt.Errorf("missing token")
 	}
 	if options.BaseUrl == "" {
 		options.BaseUrl = defaultBaseURL
 	}
+	if options.BaseUrl[len(options.BaseUrl)-1:] != "/" {
+		options.BaseUrl = options.BaseUrl + "/"
+	}
+	if options.BaseUrl[len(options.BaseUrl)-4:] != "api/" {
+		options.BaseUrl = options.BaseUrl + "api/"
+	}
+	if options.BaseUrl[0:5] != "https" {
+		options.BaseUrl = "https://" + options.BaseUrl
+	}
 
-	c := &BaseClient{httpClient: http.DefaultClient, clientOptions: options}
+	c := &PreviderClient{httpClient: http.DefaultClient, clientOptions: options}
 
 	c.Task = &TaskServiceOp{client: c}
-	c.VirtualMachine = &VirtualMachineServiceOp{client: c}
-	c.VirtualNetwork = &VirtualNetworkServiceOp{client: c}
-	c.KubernetesCluster = &KubernetesClusterServiceOp{client: c}
-	c.STaaSEnvironment = &STaaSEnvironmentServiceOp{client: c}
+	c.VirtualServer = &VirtualServerServiceImpl{client: c}
+	c.VirtualNetwork = &VirtualNetworkServiceImpl{client: c}
+	c.KubernetesCluster = &KubernetesClusterServiceImpl{client: c}
+	c.STaaSEnvironment = &STaaSEnvironmentServiceImpl{client: c}
+	c.VirtualFirewall = &VirtualFirewallServiceImpl{client: c}
 	return c, nil
 }
 
-func (c *BaseClient) Get(url string, responseBody interface{}, requestParams *PageRequest) error {
+func (c *PreviderClient) Get(url string, responseBody interface{}, requestParams *PageRequest) error {
 	return c.request("GET", url, nil, requestParams, &responseBody)
 }
 
-func (c *BaseClient) Delete(url string, responseBody interface{}) error {
+func (c *PreviderClient) Delete(url string, responseBody interface{}) error {
 	return c.request("DELETE", url, &responseBody, nil, &responseBody)
 }
 
-func (c *BaseClient) Post(url string, requestBody, responseBody interface{}) error {
+func (c *PreviderClient) Post(url string, requestBody, responseBody interface{}) error {
 	return c.request("POST", url, &requestBody, nil, &responseBody)
 }
 
-func (c *BaseClient) Put(url string, requestBody, responseBody interface{}) error {
+func (c *PreviderClient) Put(url string, requestBody, responseBody interface{}) error {
 	return c.request("PUT", url, &requestBody, nil, &responseBody)
 }
 
-func (c *BaseClient) request(method string, url string, requestBody interface{}, pageRequest *PageRequest, responseBody interface{}) error {
+func (c *PreviderClient) request(method string, url string, requestBody interface{}, pageRequest *PageRequest, responseBody interface{}) error {
 
 	// content will be empty with GET, so can be sent anyway
 	b := new(bytes.Buffer)
@@ -105,6 +111,10 @@ func (c *BaseClient) request(method string, url string, requestBody interface{},
 	if err != nil {
 		return err
 	}
+
+	// Enable for POST/PUT debug
+	//fmt.Printf("%+v\n", b)
+
 	req, err := http.NewRequest(method, c.clientOptions.BaseUrl+url, b)
 	if err != nil {
 		return err
@@ -145,17 +155,16 @@ func (c *BaseClient) request(method string, url string, requestBody interface{},
 		var apiErrorResponseBody ApiErrorResponseBody
 		temp, err := io.ReadAll(res.Body)
 		err = json.Unmarshal(temp, &apiErrorResponseBody)
-		var tmpBuffer any
+
+		var tmpBuffer []byte
 		json.Unmarshal(temp, &tmpBuffer)
-		fmt.Println(tmpBuffer)
 
 		if err != nil {
-			log.Printf("[ERROR] [Previder API] Could not parse error result:" + string(temp))
-			return err
+			return errors.New(fmt.Sprintf("could not parse error result: %v", err.Error()))
 		}
-		log.Printf("[ERROR] [Previder API] Error while executing the request to " + apiErrorResponseBody.Path + ": [" + strconv.Itoa(apiErrorResponseBody.Status) + "] " + apiErrorResponseBody.Message)
+
 		apiError.Code = res.StatusCode
-		apiError.Message = "[Previder API] " + apiErrorResponseBody.Message
+		apiError.Message = "Error while executing the request to " + apiErrorResponseBody.Path + ": " + apiErrorResponseBody.Message
 		if apiErrorResponseBody.Error != "" {
 			apiError.Message = apiError.Message + " - " + apiErrorResponseBody.Error
 		}
@@ -175,7 +184,7 @@ func (c *BaseClient) request(method string, url string, requestBody interface{},
 	return nil
 }
 
-func (c *BaseClient) ApiInfo() (*ApiInfo, error) {
+func (c *PreviderClient) ApiInfo() (*ApiInfo, error) {
 	apiInfo := new(ApiInfo)
 	err := c.Get("", apiInfo, nil)
 	return apiInfo, err

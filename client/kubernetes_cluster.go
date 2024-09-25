@@ -7,14 +7,14 @@ import (
 type KubernetesClusterService interface {
 	Page(request PageRequest) (*Page, *[]KubernetesCluster, error)
 	Get(id string) (*KubernetesClusterExt, error)
-	Create(create KubernetesClusterCreate) error
+	Create(create KubernetesClusterCreate) (*Reference, error)
 	Delete(id string) error
 	Update(id string, update KubernetesClusterUpdate) error
 	GetKubeConfig(id string, endpoint string) (KubernetesClusterKubeConfigResponse, error)
 }
 
-type KubernetesClusterServiceOp struct {
-	client *BaseClient
+type KubernetesClusterServiceImpl struct {
+	client *PreviderClient
 }
 
 type KubernetesCluster struct {
@@ -78,7 +78,7 @@ type KubernetesClusterKubeConfigResponse struct {
 	Config string `json:"config"`
 }
 
-func (c *KubernetesClusterServiceOp) Page(request PageRequest) (*Page, *[]KubernetesCluster, error) {
+func (c *KubernetesClusterServiceImpl) Page(request PageRequest) (*Page, *[]KubernetesCluster, error) {
 	page := new(Page)
 	err := c.client.Get(kubernetesBasePath+"cluster", page, &request)
 	if err != nil {
@@ -93,28 +93,29 @@ func (c *KubernetesClusterServiceOp) Page(request PageRequest) (*Page, *[]Kubern
 	return page, clusters, err
 }
 
-func (c *KubernetesClusterServiceOp) Get(id string) (*KubernetesClusterExt, error) {
+func (c *KubernetesClusterServiceImpl) Get(id string) (*KubernetesClusterExt, error) {
 	cluster := new(KubernetesClusterExt)
 	err := c.client.Get(kubernetesBasePath+"cluster/"+id, cluster, nil)
 	return cluster, err
 }
 
-func (c *KubernetesClusterServiceOp) Create(create KubernetesClusterCreate) error {
-	err := c.client.Post(kubernetesBasePath+"cluster", create, nil)
-	return err
+func (c *KubernetesClusterServiceImpl) Create(create KubernetesClusterCreate) (*Reference, error) {
+	response := new(Reference)
+	err := c.client.Post(kubernetesBasePath+"cluster", create, &response)
+	return response, err
 }
 
-func (c *KubernetesClusterServiceOp) Update(id string, update KubernetesClusterUpdate) error {
+func (c *KubernetesClusterServiceImpl) Update(id string, update KubernetesClusterUpdate) error {
 	err := c.client.Put(kubernetesBasePath+"cluster/"+id, update, nil)
 	return err
 }
 
-func (c *KubernetesClusterServiceOp) Delete(id string) error {
+func (c *KubernetesClusterServiceImpl) Delete(id string) error {
 	err := c.client.Delete(kubernetesBasePath+"cluster/"+id, nil)
 	return err
 }
 
-func (c *KubernetesClusterServiceOp) GetKubeConfig(id string, endpoint string) (KubernetesClusterKubeConfigResponse, error) {
+func (c *KubernetesClusterServiceImpl) GetKubeConfig(id string, endpoint string) (KubernetesClusterKubeConfigResponse, error) {
 	requestKubeConfig := KubernetesClusterKubeConfigRequest{Endpoint: endpoint}
 	var response KubernetesClusterKubeConfigResponse
 	err := c.client.Post(kubernetesBasePath+"cluster/"+id+"/config", requestKubeConfig, &response)

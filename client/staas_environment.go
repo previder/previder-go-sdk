@@ -5,7 +5,7 @@ import "encoding/json"
 type STaaSEnvironmentService interface {
 	Page(request PageRequest) (*Page, *[]STaaSEnvironment, error)
 	Get(id string) (*STaaSEnvironmentExt, error)
-	Create(create STaaSEnvironmentCreate) error
+	Create(create STaaSEnvironmentCreate) (*Reference, error)
 	Delete(id string, delete STaaSEnvironmentDelete) error
 	Update(id string, update STaaSEnvironmentUpdate) error
 	CreateVolume(id string, create STaaSVolumeCreate) error
@@ -15,8 +15,8 @@ type STaaSEnvironmentService interface {
 	DeleteNetwork(id string, networkId string) error
 }
 
-type STaaSEnvironmentServiceOp struct {
-	client *BaseClient
+type STaaSEnvironmentServiceImpl struct {
+	client *PreviderClient
 }
 
 type STaaSEnvironment struct {
@@ -113,7 +113,7 @@ type STaaSVolumeDelete struct {
 	Force bool `json:"force"`
 }
 
-func (c *STaaSEnvironmentServiceOp) Page(request PageRequest) (*Page, *[]STaaSEnvironment, error) {
+func (c *STaaSEnvironmentServiceImpl) Page(request PageRequest) (*Page, *[]STaaSEnvironment, error) {
 	page := new(Page)
 	err := c.client.Get(staasBasePath+"/environment", page, &request)
 	if err != nil {
@@ -128,48 +128,49 @@ func (c *STaaSEnvironmentServiceOp) Page(request PageRequest) (*Page, *[]STaaSEn
 	return page, environments, err
 }
 
-func (c *STaaSEnvironmentServiceOp) Get(id string) (*STaaSEnvironmentExt, error) {
+func (c *STaaSEnvironmentServiceImpl) Get(id string) (*STaaSEnvironmentExt, error) {
 	environment := new(STaaSEnvironmentExt)
 	err := c.client.Get(staasBasePath+"/environment/"+id, environment, nil)
 	return environment, err
 }
 
-func (c *STaaSEnvironmentServiceOp) Create(create STaaSEnvironmentCreate) error {
-	err := c.client.Post(staasBasePath+"/environment", create, nil)
-	return err
+func (c *STaaSEnvironmentServiceImpl) Create(create STaaSEnvironmentCreate) (*Reference, error) {
+	response := new(Reference)
+	err := c.client.Post(staasBasePath+"/environment", create, &response)
+	return response, err
 }
 
-func (c *STaaSEnvironmentServiceOp) Update(id string, update STaaSEnvironmentUpdate) error {
+func (c *STaaSEnvironmentServiceImpl) Update(id string, update STaaSEnvironmentUpdate) error {
 	err := c.client.Put(staasBasePath+"/environment/"+id, update, nil)
 	return err
 }
 
-func (c *STaaSEnvironmentServiceOp) Delete(id string, delete STaaSEnvironmentDelete) error {
+func (c *STaaSEnvironmentServiceImpl) Delete(id string, delete STaaSEnvironmentDelete) error {
 	err := c.client.Delete(staasBasePath+"/environment/"+id, delete)
 	return err
 }
 
-func (c *STaaSEnvironmentServiceOp) CreateVolume(id string, create STaaSVolumeCreate) error {
+func (c *STaaSEnvironmentServiceImpl) CreateVolume(id string, create STaaSVolumeCreate) error {
 	err := c.client.Post(staasBasePath+"/environment/"+id+"/volume", create, nil)
 	return err
 }
 
-func (c *STaaSEnvironmentServiceOp) UpdateVolume(id string, volumeId string, create STaaSVolumeUpdate) error {
+func (c *STaaSEnvironmentServiceImpl) UpdateVolume(id string, volumeId string, create STaaSVolumeUpdate) error {
 	err := c.client.Put(staasBasePath+"/environment/"+id+"/volume/"+volumeId, create, nil)
 	return err
 }
 
-func (c *STaaSEnvironmentServiceOp) DeleteVolume(id string, volumeId string, delete STaaSVolumeDelete) error {
+func (c *STaaSEnvironmentServiceImpl) DeleteVolume(id string, volumeId string, delete STaaSVolumeDelete) error {
 	err := c.client.Delete(staasBasePath+"/environment/"+id+"/volume/"+volumeId, delete)
 	return err
 }
 
-func (c *STaaSEnvironmentServiceOp) CreateNetwork(id string, create STaaSNetworkCreate) error {
+func (c *STaaSEnvironmentServiceImpl) CreateNetwork(id string, create STaaSNetworkCreate) error {
 	err := c.client.Post(staasBasePath+"/environment/"+id+"/network", create, nil)
 	return err
 }
 
-func (c *STaaSEnvironmentServiceOp) DeleteNetwork(id string, networkId string) error {
+func (c *STaaSEnvironmentServiceImpl) DeleteNetwork(id string, networkId string) error {
 	err := c.client.Delete(staasBasePath+"/environment/"+id+"/network/"+networkId, nil)
 	return err
 }

@@ -17,3 +17,27 @@ type Page struct {
 	Number           int
 	Content          json.RawMessage
 }
+
+type OwnerReference struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+type Audit struct {
+	CreatedBy      AuditUserRef `json:"createdBy"`
+	CreatedAt      int          `json:"createdAt"`
+	LastModifiedBy AuditUserRef `json:"lastModifiedBy"`
+	LastModifiedAt int          `json:"lastModifiedAt"`
+}
+
+type AuditUserRef struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type Reference struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"`
+}

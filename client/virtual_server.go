@@ -19,7 +19,7 @@ const (
 	VmStatePoweredOn  = "POWEREDON"
 )
 
-type VirtualMachineService interface {
+type VirtualServerService interface {
 	ComputeClusterList() (*[]ComputeCluster, error)
 	VirtualMachineTemplateList() (*[]VirtualMachineTemplate, error)
 	Page(request PageRequest) (*Page, *[]VirtualMachine, error)
@@ -31,8 +31,8 @@ type VirtualMachineService interface {
 	OpenConsole(id string) (*OpenConsoleResult, error)
 }
 
-type VirtualMachineServiceOp struct {
-	client *BaseClient
+type VirtualServerServiceImpl struct {
+	client *PreviderClient
 }
 
 type VirtualMachineTask struct {
@@ -45,6 +45,7 @@ type VirtualMachine struct {
 	Id               string `json:"id,omitempty"`
 	Name             string `json:"name"`
 	Group            string `json:"group,omitempty"`
+	GroupName        string `json:"groupName,omitempty"`
 	ComputeCluster   string `json:"computeCluster"`
 	CpuCores         int    `json:"cpuCores"`
 	Memory           uint64 `json:"memory"`
@@ -62,7 +63,7 @@ type VirtualMachineExt struct {
 	Hostname                     string             `json:"hostname"`
 	Tags                         []string           `json:"tags"`
 	Disks                        []Disk             `json:"disks"`
-	NetworkInterfaces            []NetworkInterface `json:"networkInterfaces,"`
+	NetworkInterfaces            []NetworkInterface `json:"networkInterfaces"`
 	TerminationProtectionEnabled bool               `json:"terminationProtectionEnabled"`
 	Flavor                       string             `json:"flavor,omitempty"`
 	GuestToolsStatus             string             `json:"guestToolsStatus"`
@@ -145,19 +146,19 @@ type OpenConsoleResult struct {
 	ConsoleUrl string `json:"consoleUrl,omitempty"`
 }
 
-func (c *VirtualMachineServiceOp) ComputeClusterList() (*[]ComputeCluster, error) {
+func (c *VirtualServerServiceImpl) ComputeClusterList() (*[]ComputeCluster, error) {
 	computeClusters := new([]ComputeCluster)
 	err := c.client.Get(iaasBasePath+"computecluster", computeClusters, nil)
 	return computeClusters, err
 }
 
-func (c *VirtualMachineServiceOp) VirtualMachineTemplateList() (*[]VirtualMachineTemplate, error) {
+func (c *VirtualServerServiceImpl) VirtualMachineTemplateList() (*[]VirtualMachineTemplate, error) {
 	virtualMachineTemplates := new([]VirtualMachineTemplate)
 	err := c.client.Get(iaasBasePath+"template", virtualMachineTemplates, nil)
 	return virtualMachineTemplates, err
 }
 
-func (c *VirtualMachineServiceOp) Page(request PageRequest) (*Page, *[]VirtualMachine, error) {
+func (c *VirtualServerServiceImpl) Page(request PageRequest) (*Page, *[]VirtualMachine, error) {
 	page := new(Page)
 	err := c.client.Get(iaasBasePath+"virtualmachine", page, &request)
 	if err != nil {
@@ -172,37 +173,37 @@ func (c *VirtualMachineServiceOp) Page(request PageRequest) (*Page, *[]VirtualMa
 	return page, virtualMachines, err
 }
 
-func (c *VirtualMachineServiceOp) Get(id string) (*VirtualMachineExt, error) {
+func (c *VirtualServerServiceImpl) Get(id string) (*VirtualMachineExt, error) {
 	virtualMachine := new(VirtualMachineExt)
 	err := c.client.Get(iaasBasePath+"virtualmachine/"+id, virtualMachine, nil)
 	return virtualMachine, err
 }
 
-func (c *VirtualMachineServiceOp) Create(vm *VirtualMachineCreate) (*VirtualMachineTask, error) {
+func (c *VirtualServerServiceImpl) Create(vm *VirtualMachineCreate) (*VirtualMachineTask, error) {
 	task := new(VirtualMachineTask)
 	err := c.client.Post(iaasBasePath+"virtualmachine", vm, task)
 	return task, err
 }
 
-func (c *VirtualMachineServiceOp) Update(id string, vm *VirtualMachineUpdate) (*VirtualMachineTask, error) {
+func (c *VirtualServerServiceImpl) Update(id string, vm *VirtualMachineUpdate) (*VirtualMachineTask, error) {
 	task := new(VirtualMachineTask)
 	err := c.client.Put(iaasBasePath+"virtualmachine/"+id, vm, task)
 	return task, err
 }
 
-func (c *VirtualMachineServiceOp) Delete(id string) (*VirtualMachineTask, error) {
+func (c *VirtualServerServiceImpl) Delete(id string) (*VirtualMachineTask, error) {
 	task := new(VirtualMachineTask)
 	err := c.client.Delete(iaasBasePath+"virtualmachine/"+id, task)
 	return task, err
 }
 
-func (c *VirtualMachineServiceOp) Control(id string, action string) (*VirtualMachineTask, error) {
+func (c *VirtualServerServiceImpl) Control(id string, action string) (*VirtualMachineTask, error) {
 	task := new(VirtualMachineTask)
 	err := c.client.Post(iaasBasePath+"virtualmachine/"+id+"/action/"+action, nil, task)
 	return task, err
 }
 
-func (c *VirtualMachineServiceOp) OpenConsole(id string) (*OpenConsoleResult, error) {
+func (c *VirtualServerServiceImpl) OpenConsole(id string) (*OpenConsoleResult, error) {
 	res := new(OpenConsoleResult)
 	err := c.client.Post(iaasBasePath+"virtualmachine/"+id+"/console", nil, res)
 	return res, err
