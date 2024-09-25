@@ -100,18 +100,18 @@ func (c *VirtualFirewallServiceImpl) Page(request PageRequest) (*Page, *[]Virtua
 		return nil, nil, err
 	}
 
-	clusters := new([]VirtualFirewall)
-	if err := json.Unmarshal(page.Content, &clusters); err != nil {
+	response := new([]VirtualFirewall)
+	if err := json.Unmarshal(page.Content, &response); err != nil {
 		return nil, nil, err
 	}
 
-	return page, clusters, err
+	return page, response, err
 }
 
 func (c *VirtualFirewallServiceImpl) Get(id string) (*VirtualFirewallExt, error) {
-	cluster := new(VirtualFirewallExt)
-	err := c.client.Get(iaasBasePath+"/virtualfirewall/"+id, cluster, nil)
-	return cluster, err
+	response := new(VirtualFirewallExt)
+	err := c.client.Get(iaasBasePath+"/virtualfirewall/"+id, response, nil)
+	return response, err
 }
 
 func (c *VirtualFirewallServiceImpl) Create(create VirtualFirewallCreate) (*Reference, error) {
