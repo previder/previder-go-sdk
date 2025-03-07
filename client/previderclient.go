@@ -16,6 +16,7 @@ const (
 	iaasBasePath       = "v2/iaas/"
 	kubernetesBasePath = "v2/kubernetes/"
 	staasBasePath      = "v2/storage/staas/"
+	coreBasePath       = "v2/core/"
 	jsonEncoding       = "application/json; charset=utf-8"
 	customerHeader     = "X-CustomerId"
 )
@@ -29,6 +30,7 @@ type PreviderClient struct {
 	VirtualFirewall   VirtualFirewallService
 	KubernetesCluster KubernetesClusterService
 	STaaSEnvironment  STaaSEnvironmentService
+	Customer          CustomerService
 }
 
 type ApiInfo struct {
@@ -84,6 +86,7 @@ func New(options *ClientOptions) (*PreviderClient, error) {
 	c.KubernetesCluster = &KubernetesClusterServiceImpl{client: c}
 	c.STaaSEnvironment = &STaaSEnvironmentServiceImpl{client: c}
 	c.VirtualFirewall = &VirtualFirewallServiceImpl{client: c}
+	c.Customer = &CustomerServiceImpl{client: c}
 	return c, nil
 }
 
