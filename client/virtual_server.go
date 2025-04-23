@@ -102,6 +102,7 @@ type DiskUpdate struct {
 type NetworkInterface struct {
 	Id                  string   `json:"id,omitempty"`
 	Network             string   `json:"network"`
+	NetworkName         string   `json:"networkName,omitempty"`
 	Connected           bool     `json:"connected"`
 	MacAddress          string   `json:"macAddress,omitempty"`
 	DiscoveredAddresses []string `json:"discoveredAddresses,omitempty"`
