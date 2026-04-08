@@ -74,7 +74,7 @@ func New(options *ClientOptions) (*PreviderClient, error) {
 	if options.BaseUrl[len(options.BaseUrl)-4:] != "api/" {
 		options.BaseUrl = options.BaseUrl + "api/"
 	}
-	if options.BaseUrl[0:5] != "https" {
+	if options.BaseUrl[0:5] != "https" && options.BaseUrl[0:4] != "http" {
 		options.BaseUrl = "https://" + options.BaseUrl
 	}
 
@@ -167,7 +167,7 @@ func (c *PreviderClient) request(method string, url string, requestBody interfac
 		}
 
 		apiError.Code = res.StatusCode
-		apiError.Message = "Error while executing the request to " + apiErrorResponseBody.Path + ": " + apiErrorResponseBody.Message
+		apiError.Message = "Error while executing the request to " + c.clientOptions.BaseUrl + url + ": " + apiErrorResponseBody.Message
 		if apiErrorResponseBody.Error != "" {
 			apiError.Message = apiError.Message + " - " + apiErrorResponseBody.Error
 		}

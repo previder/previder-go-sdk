@@ -13,6 +13,11 @@ type KubernetesClusterService interface {
 	Update(id string, update KubernetesClusterUpdate) error
 	GetKubeConfig(id string, endpoint string) (KubernetesClusterKubeConfigResponse, error)
 	GetNode(clusterId string, nodeName string) (*KubernetesClusterNodeInfo, error)
+	PageLoadBalancer(clusterId string, request PageRequest) (*Page, *[]KubernetesClusterLoadBalancer, error)
+	GetLoadBalancer(clusterId string, id string) (*KubernetesClusterLoadBalancerExt, error)
+	CreateLoadBalancer(clusterId string, create KubernetesClusterLoadBalancerCreate) (*Reference, error)
+	DeleteLoadBalancer(clusterId string, id string) error
+	UpdateLoadBalancer(clusterId string, id string, update KubernetesClusterLoadBalancerUpdate) (*Reference, error)
 }
 
 type KubernetesClusterServiceImpl struct {
@@ -88,6 +93,37 @@ type KubernetesClusterNodeInfo struct {
 	DiscoveredAddresses []string `json:"discoveredAddresses"`
 }
 
+type KubernetesClusterLoadBalancer struct {
+	Id    string `json:"id"`
+	Name  string `json:"name"`
+	Type  string `json:"type"`
+	State string `json:"state"`
+}
+
+type KubernetesClusterLoadBalancerExt struct {
+	KubernetesClusterLoadBalancer
+	Namespace            string   `json:"namespace"`
+	ServiceName          string   `json:"serviceName"`
+	ServicePorts         []int32  `json:"servicePorts"`
+	ExtraSans            []string `json:"extraSans"`
+	ExternalAddress      string   `json:"externalAddress"`
+	ProxyProtocolEnabled bool     `json:"proxyProtocolEnabled"`
+}
+
+type KubernetesClusterLoadBalancerCreate struct {
+	KubernetesClusterLoadBalancerUpdate
+	Name        string `json:"name"`
+	ServiceName string `json:"serviceName"`
+	Namespace   string `json:"namespace"`
+}
+
+type KubernetesClusterLoadBalancerUpdate struct {
+	Type                 string   `json:"type"`
+	ServicePorts         []int32  `json:"servicePorts"`
+	ExtraSans            []string `json:"extraSans"`
+	ProxyProtocolEnabled bool     `json:"proxyProtocolEnabled"`
+}
+
 func (c *KubernetesClusterServiceImpl) Page(request PageRequest) (*Page, *[]KubernetesCluster, error) {
 	page := new(Page)
 	err := c.client.Get(kubernetesBasePath+"cluster", page, &request)
@@ -147,4 +183,42 @@ func (c *KubernetesClusterServiceImpl) GetNode(clusterId string, nodeName string
 		return nil, err
 	}
 	return nodes[0], err
+}
+
+func (c *KubernetesClusterServiceImpl) PageLoadBalancer(clusterId string, request PageRequest) (*Page, *[]KubernetesClusterLoadBalancer, error) {
+	page := new(Page)
+	err := c.client.Get(kubernetesBasePath+"cluster/"+clusterId+"/load-balancer", page, &request)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	clusterLoadBalancers := new([]KubernetesClusterLoadBalancer)
+	if err := json.Unmarshal(page.Content, &clusterLoadBalancers); err != nil {
+		return nil, nil, err
+	}
+
+	return page, clusterLoadBalancers, err
+}
+
+func (c *KubernetesClusterServiceImpl) GetLoadBalancer(clusterId string, id string) (*KubernetesClusterLoadBalancerExt, error) {
+	clusterLoadBalancer := new(KubernetesClusterLoadBalancerExt)
+	err := c.client.Get(kubernetesBasePath+"cluster/"+clusterId+"/load-balancer/"+id, clusterLoadBalancer, nil)
+	return clusterLoadBalancer, err
+}
+
+func (c *KubernetesClusterServiceImpl) CreateLoadBalancer(clusterId string, create KubernetesClusterLoadBalancerCreate) (*Reference, error) {
+	response := new(Reference)
+	err := c.client.Post(kubernetesBasePath+"cluster/"+clusterId+"/load-balancer", create, &response)
+	return response, err
+}
+
+func (c *KubernetesClusterServiceImpl) DeleteLoadBalancer(clusterId string, id string) error {
+	err := c.client.Delete(kubernetesBasePath+"cluster/"+clusterId+"/load-balancer/"+id, nil)
+	return err
+}
+
+func (c *KubernetesClusterServiceImpl) UpdateLoadBalancer(clusterId string, id string, update KubernetesClusterLoadBalancerUpdate) (*Reference, error) {
+	response := new(Reference)
+	err := c.client.Put(kubernetesBasePath+"cluster/"+clusterId+"/load-balancer/"+id, update, &response)
+	return response, err
 }
