@@ -94,20 +94,28 @@ type KubernetesClusterNodeInfo struct {
 }
 
 type KubernetesClusterLoadBalancer struct {
-	Id    string `json:"id"`
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	State string `json:"state"`
+	Id           string `json:"id"`
+	Name         string `json:"name"`
+	Type         string `json:"type"`
+	State        string `json:"state"`
+	StateMessage string `json:"stateMessage"`
+}
+
+type KubernetesClusterLoadBalancerServicePort struct {
+	ServicePort int32  `json:"servicePort"`
+	NodePort    int32  `json:"nodePort"`
+	Status      string `json:"status"`
 }
 
 type KubernetesClusterLoadBalancerExt struct {
 	KubernetesClusterLoadBalancer
-	Namespace            string   `json:"namespace"`
-	ServiceName          string   `json:"serviceName"`
-	ServicePorts         []int32  `json:"servicePorts"`
-	ExtraSans            []string `json:"extraSans"`
-	ExternalAddress      string   `json:"externalAddress"`
-	ProxyProtocolEnabled bool     `json:"proxyProtocolEnabled"`
+	Namespace            string                                     `json:"namespace"`
+	ServiceName          string                                     `json:"serviceName"`
+	ServicePorts         []KubernetesClusterLoadBalancerServicePort `json:"servicePorts"`
+	ExtraSans            []string                                   `json:"extraSans"`
+	ExternalAddress      string                                     `json:"externalAddress"`
+	ProxyProtocolEnabled bool                                       `json:"proxyProtocolEnabled"`
+	ReclaimAddress       string                                     `json:"reclaimAddress"`
 }
 
 type KubernetesClusterLoadBalancerCreate struct {
@@ -118,10 +126,11 @@ type KubernetesClusterLoadBalancerCreate struct {
 }
 
 type KubernetesClusterLoadBalancerUpdate struct {
-	Type                 string   `json:"type"`
-	ServicePorts         []int32  `json:"servicePorts"`
-	ExtraSans            []string `json:"extraSans"`
-	ProxyProtocolEnabled bool     `json:"proxyProtocolEnabled"`
+	Type                 string          `json:"type"`
+	ServicePorts         map[int32]int32 `json:"servicePorts"`
+	ExtraSans            []string        `json:"extraSans"`
+	ProxyProtocolEnabled bool            `json:"proxyProtocolEnabled"`
+	ReclaimAddress       string          `json:"reclaimAddress"`
 }
 
 func (c *KubernetesClusterServiceImpl) Page(request PageRequest) (*Page, *[]KubernetesCluster, error) {
