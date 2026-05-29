@@ -95,7 +95,7 @@ type VirtualFirewallNatRuleCreate struct {
 
 func (c *VirtualFirewallServiceImpl) Page(request PageRequest) (*Page, *[]VirtualFirewall, error) {
 	page := new(Page)
-	err := c.client.Get(iaasBasePath+"/virtualfirewall", page, &request)
+	err := c.client.Get(iaasBasePath+"virtualfirewall", page, &request)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -110,30 +110,30 @@ func (c *VirtualFirewallServiceImpl) Page(request PageRequest) (*Page, *[]Virtua
 
 func (c *VirtualFirewallServiceImpl) Get(id string) (*VirtualFirewallExt, error) {
 	response := new(VirtualFirewallExt)
-	err := c.client.Get(iaasBasePath+"/virtualfirewall/"+id, response, nil)
+	err := c.client.Get(iaasBasePath+"virtualfirewall/"+id, response, nil)
 	return response, err
 }
 
 func (c *VirtualFirewallServiceImpl) Create(create VirtualFirewallCreate) (*Reference, error) {
 	response := new(Reference)
-	err := c.client.Post(iaasBasePath+"/virtualfirewall", create, response)
+	err := c.client.Post(iaasBasePath+"virtualfirewall", create, response)
 	return response, err
 }
 
 func (c *VirtualFirewallServiceImpl) Update(id string, update VirtualFirewallUpdate) error {
-	err := c.client.Put(iaasBasePath+"/virtualfirewall/"+id, update, nil)
+	err := c.client.Put(iaasBasePath+"virtualfirewall/"+id, update, nil)
 	return err
 }
 
 func (c *VirtualFirewallServiceImpl) Delete(id string) error {
-	err := c.client.Delete(iaasBasePath+"/virtualfirewall/"+id, nil)
+	err := c.client.Delete(iaasBasePath+"virtualfirewall/"+id, nil)
 	return err
 }
 
 // NAT Rules
 func (c *VirtualFirewallServiceImpl) PageNatRules(firewallId string, request PageRequest) (*Page, *[]VirtualFirewallNatRule, error) {
 	page := new(Page)
-	err := c.client.Get(iaasBasePath+"/virtualfirewall/"+firewallId+"/natrules", page, &request)
+	err := c.client.Get(iaasBasePath+"virtualfirewall/"+firewallId+"/natrules", page, &request)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -148,16 +148,16 @@ func (c *VirtualFirewallServiceImpl) PageNatRules(firewallId string, request Pag
 
 func (c *VirtualFirewallServiceImpl) CreateNatRule(firewallId string, create VirtualFirewallNatRuleCreate) (*Reference, error) {
 	response := new(Reference)
-	err := c.client.Post(iaasBasePath+"/virtualfirewall/"+firewallId+"/natrules", create, &response)
+	err := c.client.Post(iaasBasePath+"virtualfirewall/"+firewallId+"/natrules", create, &response)
 	return response, err
 }
 
 func (c *VirtualFirewallServiceImpl) UpdateNatRule(firewallId string, id string, create VirtualFirewallNatRuleCreate) error {
-	err := c.client.Put(iaasBasePath+"/virtualfirewall/"+firewallId+"/natrules/"+id, create, nil)
+	err := c.client.Put(iaasBasePath+"virtualfirewall/"+firewallId+"/natrules/"+id, create, nil)
 	return err
 }
 
 func (c *VirtualFirewallServiceImpl) DeleteNatRule(firewallId string, id string) error {
-	err := c.client.Delete(iaasBasePath+"/virtualfirewall/"+firewallId+"/natrules/"+id, nil)
+	err := c.client.Delete(iaasBasePath+"virtualfirewall/"+firewallId+"/natrules/"+id, nil)
 	return err
 }
