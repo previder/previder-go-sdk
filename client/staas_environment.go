@@ -115,7 +115,7 @@ type STaaSVolumeDelete struct {
 
 func (c *STaaSEnvironmentServiceImpl) Page(request PageRequest) (*Page, *[]STaaSEnvironment, error) {
 	page := new(Page)
-	err := c.client.Get(staasBasePath+"/environment", page, &request)
+	err := c.client.Get(staasBasePath+"environment", page, &request)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -130,47 +130,47 @@ func (c *STaaSEnvironmentServiceImpl) Page(request PageRequest) (*Page, *[]STaaS
 
 func (c *STaaSEnvironmentServiceImpl) Get(id string) (*STaaSEnvironmentExt, error) {
 	environment := new(STaaSEnvironmentExt)
-	err := c.client.Get(staasBasePath+"/environment/"+id, environment, nil)
+	err := c.client.Get(staasBasePath+"environment/"+id, environment, nil)
 	return environment, err
 }
 
 func (c *STaaSEnvironmentServiceImpl) Create(create STaaSEnvironmentCreate) (*Reference, error) {
 	response := new(Reference)
-	err := c.client.Post(staasBasePath+"/environment", create, &response)
+	err := c.client.Post(staasBasePath+"environment", create, &response)
 	return response, err
 }
 
 func (c *STaaSEnvironmentServiceImpl) Update(id string, update STaaSEnvironmentUpdate) error {
-	err := c.client.Put(staasBasePath+"/environment/"+id, update, nil)
+	err := c.client.Put(staasBasePath+"environment/"+id, update, nil)
 	return err
 }
 
 func (c *STaaSEnvironmentServiceImpl) Delete(id string, delete STaaSEnvironmentDelete) error {
-	err := c.client.Delete(staasBasePath+"/environment/"+id, delete)
+	err := c.client.Delete(staasBasePath+"environment/"+id, delete)
 	return err
 }
 
 func (c *STaaSEnvironmentServiceImpl) CreateVolume(id string, create STaaSVolumeCreate) error {
-	err := c.client.Post(staasBasePath+"/environment/"+id+"/volume", create, nil)
+	err := c.client.Post(staasBasePath+"environment/"+id+"/volume", create, nil)
 	return err
 }
 
 func (c *STaaSEnvironmentServiceImpl) UpdateVolume(id string, volumeId string, create STaaSVolumeUpdate) error {
-	err := c.client.Put(staasBasePath+"/environment/"+id+"/volume/"+volumeId, create, nil)
+	err := c.client.Put(staasBasePath+"environment/"+id+"/volume/"+volumeId, create, nil)
 	return err
 }
 
 func (c *STaaSEnvironmentServiceImpl) DeleteVolume(id string, volumeId string, delete STaaSVolumeDelete) error {
-	err := c.client.Delete(staasBasePath+"/environment/"+id+"/volume/"+volumeId, delete)
+	err := c.client.Delete(staasBasePath+"environment/"+id+"/volume/"+volumeId, delete)
 	return err
 }
 
 func (c *STaaSEnvironmentServiceImpl) CreateNetwork(id string, create STaaSNetworkCreate) error {
-	err := c.client.Post(staasBasePath+"/environment/"+id+"/network", create, nil)
+	err := c.client.Post(staasBasePath+"environment/"+id+"/network", create, nil)
 	return err
 }
 
 func (c *STaaSEnvironmentServiceImpl) DeleteNetwork(id string, networkId string) error {
-	err := c.client.Delete(staasBasePath+"/environment/"+id+"/network/"+networkId, nil)
+	err := c.client.Delete(staasBasePath+"environment/"+id+"/network/"+networkId, nil)
 	return err
 }
