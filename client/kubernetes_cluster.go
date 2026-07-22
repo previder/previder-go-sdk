@@ -102,6 +102,7 @@ type KubernetesClusterLoadBalancer struct {
 }
 
 type KubernetesClusterLoadBalancerServicePort struct {
+	Protocol    string `json:"protocol"`
 	ServicePort int32  `json:"servicePort"`
 	NodePort    int32  `json:"nodePort"`
 	Status      string `json:"status"`
@@ -126,11 +127,11 @@ type KubernetesClusterLoadBalancerCreate struct {
 }
 
 type KubernetesClusterLoadBalancerUpdate struct {
-	Type                 string          `json:"type"`
-	ServicePorts         map[int32]int32 `json:"servicePorts"`
-	ExtraSans            []string        `json:"extraSans"`
-	ProxyProtocolEnabled bool            `json:"proxyProtocolEnabled"`
-	ReclaimAddress       string          `json:"reclaimAddress"`
+	Type                 string                                     `json:"type"`
+	ServicePorts         []KubernetesClusterLoadBalancerServicePort `json:"servicePorts"`
+	ExtraSans            []string                                   `json:"extraSans"`
+	ProxyProtocolEnabled bool                                       `json:"proxyProtocolEnabled"`
+	ReclaimAddress       string                                     `json:"reclaimAddress"`
 }
 
 func (c *KubernetesClusterServiceImpl) Page(request PageRequest) (*Page, *[]KubernetesCluster, error) {
