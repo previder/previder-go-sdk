@@ -56,6 +56,8 @@ type VirtualMachine struct {
 	HasSnapshots     bool   `json:"hasSnapshots"`
 	MarkedAsTemplate bool   `json:"markedAsTemplate"`
 	Managed          bool   `json:"managed"`
+	Region           string `json:"region,omitempty"`
+	RegionName       string `json:"regionName,omitempty"`
 }
 
 type VirtualMachineExt struct {
@@ -82,6 +84,7 @@ type VirtualMachineUpdate struct {
 	NetworkInterfaces            []NetworkInterfaceUpdate `json:"networkInterfaces,"`
 	TerminationProtectionEnabled bool                     `json:"terminationProtectionEnabled"`
 	Flavor                       string                   `json:"flavor,omitempty"`
+	Region                       string                   `json:"region,omitempty"`
 }
 
 type Disk struct {

@@ -26,19 +26,22 @@ type VirtualNetworkTask struct {
 }
 
 type VirtualNetwork struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	Group     string `json:"group,omitempty"`
-	GroupName string `json:"groupName,omitempty"`
-	Type      string `json:"type"`
-	Managed   bool   `json:"managed"`
-	State     string `json:"state"`
+	Id         string `json:"id"`
+	Name       string `json:"name"`
+	Group      string `json:"group,omitempty"`
+	GroupName  string `json:"groupName,omitempty"`
+	Type       string `json:"type"`
+	Managed    bool   `json:"managed"`
+	State      string `json:"state"`
+	Region     string `json:"region,omitempty"`
+	RegionName string `json:"regionName,omitempty"`
 }
 
 type VirtualNetworkUpdate struct {
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	Group string `json:"group,omitempty"`
+	Name   string `json:"name"`
+	Type   string `json:"type"`
+	Group  string `json:"group,omitempty"`
+	Region string `json:"region,omitempty"`
 }
 
 func (c *VirtualNetworkServiceImpl) Page(request PageRequest) (*Page, *[]VirtualNetwork, error) {

@@ -50,6 +50,8 @@ type KubernetesClusterExt struct {
 	HighAvailableControlPlane bool     `json:"highAvailableControlPlane"`
 	Network                   string   `json:"network"`
 	Reference                 string   `json:"reference"`
+	Region                    string   `json:"region,omitempty"`
+	RegionName                string   `json:"regionName,omitempty"`
 }
 
 type KubernetesClusterCreate struct {
@@ -75,6 +77,7 @@ type KubernetesClusterUpdate struct {
 	NodeStorageGb             int    `json:"nodeStorageGb"`
 	ComputeCluster            string `json:"computeCluster"`
 	HighAvailableControlPlane bool   `json:"highAvailableControlPlane"`
+	Region                    string `json:"region,omitempty"`
 }
 
 type KubernetesClusterKubeConfigRequest struct {
