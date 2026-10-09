@@ -33,6 +33,8 @@ type VirtualFirewall struct {
 	WanAddress  []string `json:"wanAddress,omitempty"`
 	LanAddress  string   `json:"lanAddress"`
 	State       string   `json:"state"`
+	Region      string   `json:"region,omitempty"`
+	RegionName  string   `json:"regionName,omitempty"`
 }
 
 type VirtualFirewallExt struct {
@@ -63,6 +65,7 @@ type VirtualFirewallUpdate struct {
 	TerminationProtected bool     `json:"terminationProtected"`
 	IcmpWanEnabled       bool     `json:"icmpWanEnabled"`
 	IcmpLanEnabled       bool     `json:"icmpLanEnabled"`
+	Region               string   `json:"region,omitempty"`
 }
 
 type VirtualFirewallCreate struct {

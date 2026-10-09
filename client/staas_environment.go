@@ -27,6 +27,8 @@ type STaaSEnvironment struct {
 	ClusterId      string         `json:"clusterId"`
 	Type           string         `json:"type"`
 	OwnerReference OwnerReference `json:"ownerReference,omitempty"`
+	Region         string         `json:"region,omitempty"`
+	RegionName     string         `json:"regionName,omitempty"`
 }
 
 type STaaSEnvironmentExt struct {
@@ -83,11 +85,13 @@ type STaaSEnvironmentCreate struct {
 	Windows bool   `json:"windows,omitempty"`
 	Type    string `json:"type"`
 	Cluster string `json:"cluster"`
+	Region  string `json:"region,omitempty"`
 }
 
 type STaaSEnvironmentUpdate struct {
 	STaaSEnvironment
-	Windows bool `json:"windows,omitempty"`
+	Windows bool   `json:"windows,omitempty"`
+	Region  string `json:"region,omitempty"`
 }
 
 type STaaSNetworkCreate struct {
