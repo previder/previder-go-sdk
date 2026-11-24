@@ -19,6 +19,22 @@ type STaaSEnvironmentServiceImpl struct {
 	client *PreviderClient
 }
 
+// STaaSCluster identifies a storage cluster available to the customer.
+type STaaSCluster struct {
+	Label string `json:"label"`
+	Name  string `json:"name"`
+	Id    string `json:"id"`
+}
+
+// STaaSClusterList returns the storage clusters available to the configured customer.
+func (c *PreviderClient) STaaSClusterList() ([]STaaSCluster, error) {
+	var clusters []STaaSCluster
+	if err := c.Get(staasBasePath+"cluster", &clusters, nil); err != nil {
+		return nil, err
+	}
+	return clusters, nil
+}
+
 type STaaSEnvironment struct {
 	Id             string         `json:"id,omitempty"`
 	Name           string         `json:"name"`
