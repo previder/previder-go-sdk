@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 2026-11
+- Added Virtual Network address pool support
+- Added Kubernetes Secure Vault support
+
 ## 2025-02
 - Added Customer support
 
