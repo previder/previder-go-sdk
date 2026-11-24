@@ -29,6 +29,7 @@ type PreviderClient struct {
 	VirtualNetwork    VirtualNetworkService
 	VirtualFirewall   VirtualFirewallService
 	KubernetesCluster KubernetesClusterService
+	SecureVault       SecureVaultService
 	STaaSEnvironment  STaaSEnvironmentService
 	Customer          CustomerService
 }
@@ -84,6 +85,7 @@ func New(options *ClientOptions) (*PreviderClient, error) {
 	c.VirtualServer = &VirtualServerServiceImpl{client: c}
 	c.VirtualNetwork = &VirtualNetworkServiceImpl{client: c}
 	c.KubernetesCluster = &KubernetesClusterServiceImpl{client: c}
+	c.SecureVault = &SecureVaultServiceImpl{client: c}
 	c.STaaSEnvironment = &STaaSEnvironmentServiceImpl{client: c}
 	c.VirtualFirewall = &VirtualFirewallServiceImpl{client: c}
 	c.Customer = &CustomerServiceImpl{client: c}

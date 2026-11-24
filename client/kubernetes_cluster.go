@@ -18,12 +18,6 @@ type KubernetesClusterService interface {
 	CreateLoadBalancer(clusterId string, create KubernetesClusterLoadBalancerCreate) (*Reference, error)
 	DeleteLoadBalancer(clusterId string, id string) error
 	UpdateLoadBalancer(clusterId string, id string, update KubernetesClusterLoadBalancerUpdate) (*Reference, error)
-
-	PageSecureVault(request PageRequest) (*Page, *[]KubernetesSecureVault, error)
-	GetSecureVault(id string) (*KubernetesSecureVaultExt, error)
-	CreateSecureVault(create KubernetesSecureVaultCreate) (*KubernetesSecureVaultResponse, error)
-	UpdateSecureVault(id string, update KubernetesSecureVaultCreate) error
-	DeleteSecureVault(id string) error
 }
 
 type KubernetesClusterServiceImpl struct {
@@ -143,33 +137,6 @@ type KubernetesClusterLoadBalancerUpdate struct {
 	ReclaimAddress       string                                     `json:"reclaimAddress"`
 }
 
-type KubernetesSecureVault struct {
-	Id        string `json:"id,omitempty"`
-	Name      string `json:"name"`
-	Group     string `json:"group,omitempty"`
-	GroupName string `json:"groupName,omitempty"`
-	State     string `json:"state"`
-}
-
-type KubernetesSecureVaultExt struct {
-	KubernetesSecureVault
-	TerminationProtected bool `json:"terminationProtected"`
-}
-
-type KubernetesSecureVaultCreate struct {
-	Name                 string `json:"name"`
-	Group                string `json:"group,omitempty"`
-	TerminationProtected bool   `json:"terminationProtected"`
-}
-
-type KubernetesSecureVaultResponse struct {
-	Id    string `json:"id"`
-	Name  string `json:"name"`
-	Type  string `json:"type"`
-	Label string `json:"label,omitempty"`
-	Token string `json:"token"`
-}
-
 func (c *KubernetesClusterServiceImpl) Page(request PageRequest) (*Page, *[]KubernetesCluster, error) {
 	page := new(Page)
 	err := c.client.Get(kubernetesBasePath+"cluster", page, &request)
@@ -267,41 +234,4 @@ func (c *KubernetesClusterServiceImpl) UpdateLoadBalancer(clusterId string, id s
 	response := new(Reference)
 	err := c.client.Put(kubernetesBasePath+"cluster/"+clusterId+"/load-balancer/"+id, update, &response)
 	return response, err
-}
-
-func (c *KubernetesClusterServiceImpl) PageSecureVault(request PageRequest) (*Page, *[]KubernetesSecureVault, error) {
-	page := new(Page)
-	err := c.client.Get(kubernetesBasePath+"securevault", page, &request)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	vaults := new([]KubernetesSecureVault)
-	if err := json.Unmarshal(page.Content, &vaults); err != nil {
-		return nil, nil, err
-	}
-
-	return page, vaults, err
-}
-
-func (c *KubernetesClusterServiceImpl) GetSecureVault(id string) (*KubernetesSecureVaultExt, error) {
-	vault := new(KubernetesSecureVaultExt)
-	err := c.client.Get(kubernetesBasePath+"securevault/"+id, vault, nil)
-	return vault, err
-}
-
-func (c *KubernetesClusterServiceImpl) CreateSecureVault(create KubernetesSecureVaultCreate) (*KubernetesSecureVaultResponse, error) {
-	response := new(KubernetesSecureVaultResponse)
-	err := c.client.Post(kubernetesBasePath+"securevault", create, response)
-	return response, err
-}
-
-func (c *KubernetesClusterServiceImpl) UpdateSecureVault(id string, update KubernetesSecureVaultCreate) error {
-	err := c.client.Put(kubernetesBasePath+"securevault/"+id, update, nil)
-	return err
-}
-
-func (c *KubernetesClusterServiceImpl) DeleteSecureVault(id string) error {
-	err := c.client.Delete(kubernetesBasePath+"securevault/"+id, nil)
-	return err
 }
